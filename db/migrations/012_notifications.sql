@@ -1,0 +1,2 @@
+create table if not exists notifications (id bigserial primary key, business_id bigint not null references businesses(id) on delete cascade, user_id bigint references users(id) on delete cascade, type text not null, title text not null, body text not null, read_at timestamptz, created_at timestamptz not null default now());
+create index if not exists notifications_user_idx on notifications(user_id,created_at desc);

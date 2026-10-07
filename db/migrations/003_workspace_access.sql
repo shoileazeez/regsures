@@ -1,0 +1,8 @@
+alter table users add column if not exists role text not null default 'owner' check (role in ('owner','admin','manager','staff'));
+create table if not exists businesses (id bigserial primary key, owner_id bigint not null references users(id) on delete cascade, name text not null, created_at timestamptz not null default now());
+create table if not exists branches (id bigserial primary key, business_id bigint not null references businesses(id) on delete cascade, name text not null, address text, created_at timestamptz not null default now());
+create table if not exists team_invites (id bigserial primary key, business_id bigint not null references businesses(id) on delete cascade, email text not null, role text not null check (role in ('admin','manager','staff')), token text not null unique, expires_at timestamptz not null, accepted_at timestamptz, created_at timestamptz not null default now());
+create table if not exists customers (id bigserial primary key, business_id bigint not null references businesses(id) on delete cascade, name text not null, phone text, email text, created_at timestamptz not null default now());
+create table if not exists sales (id bigserial primary key, business_id bigint not null references businesses(id) on delete cascade, branch_id bigint references branches(id) on delete set null, customer_id bigint references customers(id) on delete set null, total integer not null, currency text not null default 'NGN', status text not null default 'completed', created_at timestamptz not null default now());
+create index if not exists customers_business_id_idx on customers(business_id);
+create index if not exists sales_business_id_idx on sales(business_id);

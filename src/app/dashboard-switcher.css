@@ -1,0 +1,42 @@
+.business-switcher {
+  width: 100%;
+  background: #294745;
+  border: 1px solid #45605d;
+  color: var(--paper);
+  padding: 10px;
+  font: 12px "DM Sans";
+  margin: -35px 0 35px;
+  outline: 0;
+}
+.notification-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-left: 8px;
+  border-radius: 50%;
+  background: #dce84f;
+  vertical-align: middle;
+}
+.toast-stack {
+  position: fixed;
+  right: 24px;
+  top: 24px;
+  z-index: 100;
+  display: grid;
+  gap: 10px;
+  width: min(360px, calc(100vw - 32px));
+}
+.toast {
+  padding: 14px 16px;
+  border-left: 4px solid #142b2b;
+  background: #fffdf7;
+  color: #142b2b;
+  box-shadow: 0 10px 30px rgba(20, 43, 43, 0.16);
+  font-size: 14px;
+}
+.toast-error {
+  border-color: #b33a2b;
+}
+.toast-success {
+  border-color: #7b8b16;
+}

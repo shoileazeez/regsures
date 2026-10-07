@@ -1,0 +1,3 @@
+create table if not exists users (id bigserial primary key, email text not null unique, name text not null, password_hash text not null, plan text not null default 'free' check (plan in ('free','basic','pro')), created_at timestamptz not null default now());
+create table if not exists payments (id bigserial primary key, user_id bigint not null references users(id) on delete cascade, provider text not null, provider_reference text not null unique, plan text not null check (plan in ('basic','pro')), amount integer not null, currency text not null default 'NGN', status text not null default 'pending', created_at timestamptz not null default now());
+create index if not exists payments_user_id_idx on payments(user_id);

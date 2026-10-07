@@ -1,0 +1,557 @@
+.auth-page {
+  min-height: 100dvh;
+  background: var(--ink);
+  display: grid;
+  place-items: center;
+  padding: 35px;
+}
+.auth-panel {
+  background: var(--paper);
+  width: min(100%, 560px);
+  padding: 46px 58px;
+}
+.auth-panel h1 {
+  font-size: clamp(47px, 7vw, 72px);
+  line-height: 0.94;
+  letter-spacing: -0.07em;
+  margin: 15px 0 35px;
+}
+.auth-panel h1 em,
+.dashboard-content h1 em {
+  font-family: Fraunces, serif;
+  font-weight: 500;
+}
+.auth-form {
+  display: grid;
+  gap: 17px;
+}
+.auth-form label {
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+}
+.auth-form input {
+  border-bottom: 1px solid var(--ink);
+  width: 100%;
+  padding: 13px 0;
+}
+.auth-form button {
+  border: 0;
+  cursor: pointer;
+  margin-top: 8px;
+}
+.form-error {
+  font-size: 12px;
+  color: #b23d2e;
+  margin: 0;
+}
+.auth-switch {
+  font-size: 13px;
+  color: #687270;
+  margin-top: 24px;
+}
+.auth-switch a {
+  color: var(--ink);
+  font-weight: 600;
+}
+.dashboard-app {
+  background: var(--paper);
+  min-height: 100dvh;
+  display: block;
+}
+.dashboard-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 230px;
+  height: 100dvh;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 27px 22px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  z-index: 20;
+}
+.dashboard-sidebar .wordmark {
+  color: var(--paper);
+  margin-bottom: 65px;
+}
+.dashboard-sidebar .mark-logo {
+  width: 22px;
+  height: 22px;
+}
+.dashboard-sidebar nav {
+  display: grid;
+  gap: 5px;
+}
+.dashboard-sidebar nav a {
+  color: #aabcb5;
+  text-decoration: none;
+  padding: 12px 13px;
+  font-size: 13px;
+}
+.dashboard-sidebar nav a.active,
+.dashboard-sidebar nav a:hover {
+  background: #294745;
+  color: var(--paper);
+}
+.logout {
+  margin-top: auto;
+  background: none;
+  border: 0;
+  color: #aabcb5;
+  text-align: left;
+  padding: 13px;
+  font: 13px "DM Sans";
+  cursor: pointer;
+}
+.dashboard-main {
+  min-width: 0;
+  margin-left: 230px;
+}
+.dashboard-loading {
+  max-width: 900px;
+}
+.loading-line,
+.loading-block,
+.loading-card {
+  display: block;
+  background: linear-gradient(90deg, #e5e1d8 25%, #f8f5ed 50%, #e5e1d8 75%);
+  background-size: 200% 100%;
+  animation: dashboard-shimmer 1.4s ease-in-out infinite;
+  border-radius: 4px;
+}
+.loading-kicker {
+  width: 150px;
+  height: 12px;
+  margin-bottom: 30px;
+}
+.loading-title {
+  width: min(580px, 80%);
+  height: 76px;
+  margin-bottom: 26px;
+}
+.loading-copy {
+  width: min(540px, 78%);
+  height: 14px;
+  margin-bottom: 12px;
+}
+.loading-copy-short {
+  width: min(380px, 58%);
+}
+.loading-panel {
+  margin-top: 58px;
+  padding: 30px;
+  border: 1px solid #e5e1d8;
+}
+.loading-panel .loading-line {
+  width: 120px;
+  height: 12px;
+  margin-bottom: 22px;
+}
+.loading-card-title {
+  width: 260px;
+  height: 28px;
+  margin-bottom: 18px;
+}
+.loading-card-copy {
+  width: 70%;
+  height: 13px;
+}
+.loading-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 22px;
+}
+.loading-card {
+  height: 150px;
+  border: 1px solid #e5e1d8;
+}
+.metric-skeleton {
+  display: inline-block;
+  width: 110px;
+  height: 30px;
+  vertical-align: middle;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #e5e1d8 25%, #f8f5ed 50%, #e5e1d8 75%);
+  background-size: 200% 100%;
+  animation: dashboard-shimmer 1.4s ease-in-out infinite;
+}
+.current-plan-badge {
+  display: inline-block;
+  margin-top: 18px;
+  color: var(--ink);
+  font:
+    11px "DM Mono",
+    monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--orange);
+  padding-bottom: 5px;
+}
+.billing-history-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 25px;
+  margin-bottom: 28px;
+}
+.billing-history-heading h2 {
+  margin: 0;
+}
+.billing-history-heading select {
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  font: 13px "DM Sans";
+}
+.billing-history-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  padding: 22px 0;
+}
+.billing-history-row div {
+  display: grid;
+  gap: 7px;
+}
+.billing-history-row small {
+  color: #687270;
+  font-size: 12px;
+}
+.billing-status {
+  text-transform: capitalize;
+}
+.billing-status-successful {
+  color: #4f741d;
+}
+.billing-status-failed {
+  color: #b3482e;
+}
+@keyframes dashboard-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+.dashboard-content {
+  max-width: 1150px;
+  margin: auto;
+  padding: 60px 60px 100px;
+}
+.dashboard-top {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 30px;
+}
+.dashboard-content h1 {
+  font-size: clamp(48px, 6vw, 78px);
+  line-height: 0.94;
+  letter-spacing: -0.07em;
+  margin: 0;
+}
+.dashboard-lede {
+  color: #687270;
+  line-height: 1.6;
+  max-width: 530px;
+  font-size: 16px;
+}
+.dashboard-top .button {
+  border: 0;
+  cursor: pointer;
+}
+.dashboard-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--line);
+  margin: 70px 0 28px;
+}
+.dashboard-metrics > div {
+  background: var(--paper);
+  padding: 22px;
+}
+.dashboard-metrics span,
+.dashboard-metrics small {
+  display: block;
+  font:
+    11px "DM Mono",
+    monospace;
+  color: #687270;
+}
+.dashboard-metrics strong {
+  display: block;
+  font-size: 32px;
+  letter-spacing: -0.06em;
+  margin: 15px 0 6px;
+}
+.dashboard-metrics .positive {
+  color: #3f7e54;
+}
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1.55fr 1fr;
+  gap: 18px;
+}
+.dashboard-card-large,
+.attention-card,
+.locked-card,
+.empty-dashboard {
+  border-top: 2px solid var(--ink);
+  padding: 25px;
+  background: #ebe8df;
+}
+.card-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.card-heading h2,
+.attention-card h2 {
+  font-size: 20px;
+  letter-spacing: -0.04em;
+  margin: 0;
+}
+.card-heading span {
+  font:
+    10px "DM Mono",
+    monospace;
+  color: #687270;
+}
+.large-chart {
+  height: 230px;
+  display: flex;
+  gap: 12px;
+  align-items: end;
+  padding: 30px 15px 0;
+}
+.large-chart i {
+  display: block;
+  flex: 1;
+  background: var(--ink);
+  height: 42%;
+  opacity: 0.9;
+}
+.large-chart i:nth-child(2) {
+  height: 62%;
+  background: var(--orange);
+}
+.large-chart i:nth-child(3) {
+  height: 48%;
+}
+.large-chart i:nth-child(4) {
+  height: 75%;
+  background: var(--lime);
+}
+.large-chart i:nth-child(5) {
+  height: 54%;
+}
+.large-chart i:nth-child(6) {
+  height: 84%;
+  background: var(--orange);
+}
+.large-chart i:nth-child(7) {
+  height: 72%;
+  background: var(--ink);
+}
+.chart-axis {
+  display: flex;
+  justify-content: space-between;
+  font:
+    9px "DM Mono",
+    monospace;
+  color: #687270;
+}
+.attention-card {
+  background: var(--orange);
+}
+.attention-card > p:not(.attention-title) {
+  line-height: 1.6;
+  font-size: 14px;
+  max-width: 260px;
+}
+.attention-title {
+  font-size: 24px;
+  line-height: 1.05;
+  letter-spacing: -0.05em;
+  max-width: 220px;
+  margin: 55px 0 15px;
+}
+.attention-card a {
+  color: var(--ink);
+  font-size: 13px;
+  text-decoration: none;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 4px;
+}
+.analytics-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 60px;
+}
+.analytics-panels h2 {
+  font-size: 21px;
+}
+.analytics-placeholder {
+  height: 240px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: #687270;
+  padding: 30px;
+  border: 1px dashed #b5b7ad;
+  margin-top: 25px;
+}
+.locked-card {
+  max-width: 560px;
+  margin-top: 60px;
+  background: var(--lime);
+}
+.lock-mark {
+  font-size: 35px;
+}
+.locked-card h2 {
+  font-size: 30px;
+  margin: 20px 0 10px;
+  letter-spacing: -0.05em;
+}
+.locked-card p {
+  line-height: 1.6;
+  max-width: 390px;
+}
+.billing-plans {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 65px;
+}
+.billing-plans article {
+  border-top: 2px solid var(--ink);
+  padding: 25px;
+  background: #ebe8df;
+}
+.billing-plans .billing-featured {
+  background: var(--lime);
+}
+.billing-plans h2 {
+  font-size: 38px;
+}
+.billing-plans strong {
+  font-size: 25px;
+}
+.billing-plans strong small {
+  font:
+    11px "DM Mono",
+    monospace;
+}
+.billing-plans p {
+  color: #687270;
+  line-height: 1.55;
+  min-height: 80px;
+}
+.billing-plans button {
+  border: 0;
+  cursor: pointer;
+}
+.payment-status {
+  font:
+    12px "DM Mono",
+    monospace;
+  margin-top: 20px;
+}
+.empty-dashboard {
+  margin-top: 65px;
+  padding: 65px;
+  background: #ebe8df;
+}
+.empty-dashboard h2 {
+  font-size: 34px;
+}
+.empty-dashboard p {
+  max-width: 450px;
+  color: #687270;
+  line-height: 1.6;
+}
+.empty-dashboard button {
+  border: 0;
+  cursor: pointer;
+}
+@media (max-width: 800px) {
+  .auth-page {
+    padding: 18px;
+  }
+  .auth-panel {
+    padding: 32px 25px;
+  }
+  .dashboard-app {
+    display: block;
+  }
+  .dashboard-sidebar {
+    position: relative;
+    inset: auto;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    padding: 18px;
+    display: block;
+  }
+  .dashboard-sidebar .wordmark {
+    margin-bottom: 18px;
+  }
+  .dashboard-sidebar nav {
+    display: flex;
+    overflow: auto;
+  }
+  .dashboard-sidebar nav a {
+    white-space: nowrap;
+  }
+  .logout {
+    position: absolute;
+    right: 18px;
+    top: 18px;
+  }
+  .dashboard-content {
+    padding: 42px 19px 70px;
+  }
+  .dashboard-main {
+    margin-left: 0;
+  }
+  .dashboard-top {
+    display: block;
+  }
+  .dashboard-top .button {
+    margin-top: 25px;
+  }
+  .dashboard-metrics {
+    grid-template-columns: 1fr;
+    margin-top: 45px;
+  }
+  .dashboard-grid,
+  .analytics-panels,
+  .billing-plans {
+    grid-template-columns: 1fr;
+  }
+  .loading-grid {
+    grid-template-columns: 1fr;
+  }
+  .billing-history-heading,
+  .billing-history-row {
+    display: block;
+  }
+  .billing-history-heading select {
+    margin-top: 18px;
+    width: 100%;
+  }
+  .billing-history-row > div + div {
+    margin-top: 12px;
+  }
+  .attention-card {
+    min-height: 280px;
+  }
+  .billing-plans {
+    margin-top: 45px;
+  }
+}

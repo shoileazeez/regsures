@@ -1,0 +1,75 @@
+.inventory-form {
+  margin: 45px 0 30px;
+  background: #ebe8df;
+  border-top: 2px solid var(--ink);
+  padding: 24px;
+}
+.inventory-form h2 {
+  font-size: 24px;
+  margin: 0;
+}
+.inventory-form button[type="button"] {
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font: 13px "DM Sans";
+}
+.inline-create select {
+  min-width: 160px;
+}
+@media (max-width: 800px) {
+  .inventory-form .inline-create {
+    display: grid;
+  }
+  .inline-create select {
+    min-width: 0;
+  }
+}
+.search-field {
+  width: 100%;
+  max-width: 520px;
+  margin: 18px 0;
+  padding: 14px 16px;
+  border: 1px solid #d5d5c9;
+  background: #fffdf7;
+  font: inherit;
+}
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 43, 43, 0.48);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  z-index: 20;
+}
+.modal-card {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  background: #fffdf7;
+  padding: 28px;
+  display: grid;
+  gap: 12px;
+}
+.modal-card input,
+.modal-card select,
+.modal-card textarea {
+  padding: 13px;
+  border: 1px solid #d5d5c9;
+  background: #fff;
+  font: inherit;
+}
+.modal-card textarea {
+  min-height: 90px;
+}
+.modal-close {
+  position: absolute;
+  right: 16px;
+  top: 12px;
+  border: 0;
+  background: none;
+  font-size: 28px;
+  cursor: pointer;
+}

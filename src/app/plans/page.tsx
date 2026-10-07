@@ -1,3 +1,170 @@
-import SiteHeader from '../components/SiteHeader'; import SiteFooter from '../components/SiteFooter'; import InteriorHero from '../components/InteriorHero';
-const plans = [{name:'Free', price:'For getting started', text:'The essentials for understanding your stock and daily sales.', items:['One business','Inventory and sales logging','Weekly business view']},{name:'Basic', price:'For growing operators', text:'A clearer system for a business that is picking up pace.', items:['Everything in Free','Customers and restock lists','Monthly analytics','WhatsApp assistant']},{name:'Pro', price:'For serious momentum', text:'More visibility and more hands for teams that are going further.', items:['Everything in Basic','Multiple users and roles','Branches and advanced reports','Priority support']}];
-export default function Plans(){return <><SiteHeader/><main><InteriorHero eyebrow="Simple from day one" title={<>Start small.<br/><em>Grow sure.</em></>}><p>Choose the amount of clarity your business needs today. You can always make more room later.</p></InteriorHero><section className="plans-explainer shell"><div><img src="https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1200&q=85" alt="Small business team discussing plans around a table" /></div><div><h2>A plan should fit the way you <em>work.</em></h2><p>Some businesses need a simple place to record stock and sales. Others need to understand several people, product lines, or locations at once. Regsure is planned around that progression.</p><p>Every tier is designed to give you more useful context, not more confusing settings. Start with the records you need most, then add depth when your business is ready for it.</p></div></section><section className="plans-grid shell">{plans.map((plan,i)=><article className={`plan-card ${i===1?'plan-featured':''}`} key={plan.name}><span className="plan-index">0{i+1}</span><h2>{plan.name}</h2><p className="plan-price">{plan.price}</p><p>{plan.text}</p><ul>{plan.items.map(item=><li key={item}>{item}</li>)}</ul><a href="/join-waitlist" className="button dark">Join the waitlist <span>↗</span></a></article>)}</section><section className="plain-band"><div className="shell"><h2>We will keep pricing<br/><em>honest.</em></h2><p>Regsure is being built alongside the businesses who will use it. We will publish exact prices before launch, with no surprise setup fees. Early access members will see the full plan details before choosing a paid tier.</p></div></section></main><SiteFooter/></>}
+import SiteHeader from "../components/SiteHeader";
+import SiteFooter from "../components/SiteFooter";
+import InteriorHero from "../components/InteriorHero";
+import { getBusinessContext } from "@/lib/request-auth";
+
+const plans = [
+  {
+    name: "Free",
+    price: "₦0",
+    priceNote: "forever",
+    description: "The essentials for getting a clear record of the business.",
+    features: [
+      "Inventory basics",
+      "Sales recording",
+      "Customer records",
+      "Weekly overview",
+    ],
+    locked: [
+      "Monthly analytics",
+      "WhatsApp assistant",
+      "Team roles",
+      "Branches",
+    ],
+  },
+  {
+    name: "Basic",
+    price: "₦15,000",
+    priceNote: "per month",
+    description:
+      "More context for a business that is growing its rhythm, with room for two team members.",
+    features: [
+      "Everything in Free",
+      "Monthly analytics",
+      "Restock planning",
+      "Up to 2 team members",
+    ],
+    locked: ["WhatsApp assistant", "Branches", "Unlimited team members"],
+  },
+  {
+    name: "Pro",
+    price: "₦35,000",
+    priceNote: "per month",
+    description:
+      "The full workspace for teams, WhatsApp assistance, and businesses with more than one place.",
+    features: [
+      "Everything in Basic",
+      "Unlimited team members",
+      "WhatsApp assistant",
+      "Multiple branches",
+      "Advanced reporting",
+    ],
+    locked: [],
+  },
+];
+
+export default async function Plans() {
+  const context = await getBusinessContext();
+  const current = context?.plan || null;
+  return (
+    <>
+      <SiteHeader />
+      <main>
+        <InteriorHero
+          eyebrow="Simple from day one"
+          title={
+            <>
+              Start small.
+              <br />
+              <em>Grow sure.</em>
+            </>
+          }
+        >
+          <p>
+            Choose the amount of clarity your business needs today. You can make
+            more room when the work, team, or branches demand it.
+          </p>
+        </InteriorHero>
+        {current && (
+          <section className="current-plan shell">
+            <p className="kicker">
+              <span className="kicker-line" />
+              Your current access
+            </p>
+            <div className="current-plan-head">
+              <div>
+                <h2>
+                  You are on <em>{current}</em>.
+                </h2>
+                <p>
+                  {current === "free"
+                    ? "You have the essentials for recording day-to-day business activity."
+                    : current === "basic"
+                      ? "You have access to analytics, restock planning, and WhatsApp assistance."
+                      : "You have the complete Regsure workspace for teams and branches."}
+                </p>
+              </div>
+              <a className="button dark" href="/dashboard/billing">
+                Manage plan ↗
+              </a>
+            </div>
+          </section>
+        )}
+        <section className="plan-matrix shell">
+          <div className="plan-matrix-heading">
+            <p className="kicker">
+              <span className="kicker-line" />
+              Compare access
+            </p>
+            <h2>
+              Pick the room
+              <br />
+              <em>you need.</em>
+            </h2>
+          </div>
+          <div className="plan-matrix-list">
+            {plans.map((plan) => (
+              <article
+                className={`access-plan ${current === plan.name.toLowerCase() ? "access-current" : ""}`}
+                key={plan.name}
+              >
+                <div>
+                  <span className="plan-index">
+                    {plan.name.toLowerCase() === current ? "CURRENT PLAN" : ""}
+                  </span>
+                  <h3>{plan.name}</h3>
+                  <p>{plan.description}</p>
+                  <p className="plan-price">
+                    {plan.price} <small>{plan.priceNote}</small>
+                  </p>
+                </div>
+                <ul>
+                  {plan.features.map((feature) => (
+                    <li className="feature-on" key={feature}>
+                      ✓ {feature}
+                    </li>
+                  ))}
+                  {plan.locked.map((feature) => (
+                    <li className="feature-off" key={feature}>
+                      Locked · {feature}
+                    </li>
+                  ))}
+                </ul>
+                {plan.name.toLowerCase() !== current && (
+                  <a href="/auth/signup" className="text-link">
+                    Choose {plan.name} <span>↗</span>
+                  </a>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+        <section className="plain-band">
+          <div className="shell">
+            <h2>
+              We keep pricing
+              <br />
+              <em>honest.</em>
+            </h2>
+            <p>
+              Basic is ₦15,000 monthly and Pro is ₦35,000 monthly. Payment is
+              handled securely through Flutterwave, and the owner can renew or
+              change plans from the billing page.
+            </p>
+          </div>
+        </section>
+      </main>
+      <SiteFooter />
+    </>
+  );
+}

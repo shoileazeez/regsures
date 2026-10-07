@@ -1,0 +1,2 @@
+create table if not exists auth_refresh_tokens (id bigserial primary key, user_id bigint not null references users(id) on delete cascade, token_hash text not null unique, platform text not null check (platform in ('web','mobile')), expires_at timestamptz not null, revoked_at timestamptz, replaced_by bigint references auth_refresh_tokens(id), created_at timestamptz not null default now());
+create index if not exists auth_refresh_tokens_user_idx on auth_refresh_tokens(user_id);

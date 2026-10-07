@@ -1,0 +1,3 @@
+create table if not exists inventory_items (id bigserial primary key, business_id bigint not null references businesses(id) on delete cascade, branch_id bigint references branches(id) on delete set null, name text not null, sku text, quantity integer not null default 0 check (quantity >= 0), price integer not null default 0, created_at timestamptz not null default now());
+create table if not exists sale_items (id bigserial primary key, sale_id bigint not null references sales(id) on delete cascade, inventory_item_id bigint not null references inventory_items(id), quantity integer not null check (quantity > 0), unit_price integer not null);
+create index if not exists inventory_items_business_id_idx on inventory_items(business_id);

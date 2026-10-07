@@ -1,1 +1,24 @@
-.mark-logo{width:22px;height:22px;display:block}.footer .mark-logo{width:18px;height:18px}.footer a:not(.wordmark){color:var(--ink);text-decoration:none;border-bottom:1px solid var(--orange);padding-bottom:2px}.legal .kicker{color:var(--orange)}.legal h2{color:var(--ink)}.join-form small{color:var(--ink)}
+.mark-logo {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+.footer .mark-logo {
+  width: 18px;
+  height: 18px;
+}
+.footer a:not(.wordmark) {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--orange);
+  padding-bottom: 2px;
+}
+.legal .kicker {
+  color: var(--orange);
+}
+.legal h2 {
+  color: var(--ink);
+}
+.join-form small {
+  color: var(--ink);
+}

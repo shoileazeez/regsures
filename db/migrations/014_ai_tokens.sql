@@ -1,0 +1,2 @@
+create table if not exists ai_tokens (id bigserial primary key, user_id bigint not null references users(id) on delete cascade, business_id bigint references businesses(id) on delete cascade, token_hash text not null unique, expires_at timestamptz not null, revoked_at timestamptz, last_used_at timestamptz, created_at timestamptz not null default now());
+create index if not exists ai_tokens_user_idx on ai_tokens(user_id);

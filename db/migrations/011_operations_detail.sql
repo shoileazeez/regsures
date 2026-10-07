@@ -1,0 +1,16 @@
+alter table inventory_items add column if not exists cost_price integer not null default 0;
+alter table inventory_items add column if not exists category text;
+alter table inventory_items add column if not exists unit_of_measure text not null default 'unit';
+alter table inventory_items add column if not exists description text;
+alter table inventory_items add column if not exists opening_stock integer not null default 0;
+alter table customers add column if not exists customer_type text not null default 'retail';
+alter table customers add column if not exists credit_limit integer not null default 0;
+alter table customers add column if not exists notes text;
+alter table sales add column if not exists amount_paid integer not null default 0;
+alter table sales add column if not exists payment_date timestamptz;
+alter table sales add column if not exists notes text;
+alter table sales add column if not exists salesperson_id bigint references users(id) on delete set null;
+alter table sales add column if not exists paid_at timestamptz;
+alter table sales drop constraint if exists sales_status_check;
+alter table sales add constraint sales_status_check check (status in ('completed','unpaid','partial','cancelled'));
+create table if not exists inventory_adjustments (id bigserial primary key, inventory_item_id bigint not null references inventory_items(id) on delete cascade, user_id bigint references users(id) on delete set null, quantity_before integer not null, quantity_change integer not null, quantity_after integer not null, reason text, created_at timestamptz not null default now());

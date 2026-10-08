@@ -17,6 +17,15 @@ export async function POST(request: Request) {
         { status: 403 },
       );
   }
+  if (
+    context.assignedBranchId &&
+    branchId !== "all" &&
+    String(branchId) !== context.assignedBranchId
+  )
+    return NextResponse.json(
+      { error: "You can only access your assigned branch." },
+      { status: 403 },
+    );
   const response = NextResponse.json({ ok: true, branchId });
   response.cookies.set("regsure_branch", String(branchId), {
     httpOnly: true,

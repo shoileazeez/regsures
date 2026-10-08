@@ -33,17 +33,28 @@ export async function getBusinessContext() {
   const branch = (await cookies()).get("regsure_branch")?.value;
   const businessId = selected || user.businessId || null;
   let plan = user.plan || "free";
+  let role = user.role || "staff";
+  let assignedBranchId: string | null = null;
   if (businessId) {
-    const result = await db.query("select plan from businesses where id=$1", [
-      businessId,
-    ]);
-    plan = result.rows[0]?.plan || plan;
+    const result = await db.query(
+      "select b.plan,m.role,m.branch_id from businesses b join business_memberships m on m.business_id=b.id where b.id=$1 and m.user_id=$2",
+      [businessId, user.sub],
+    );
+    if (!result.rows[0]) return null;
+    plan = result.rows[0].plan || plan;
+    role = result.rows[0].role || role;
+    assignedBranchId = result.rows[0].branch_id
+      ? String(result.rows[0].branch_id)
+      : null;
   }
+  const effectiveBranchId =
+    assignedBranchId || (branch && branch !== "all" ? branch : null);
   return {
     user,
     businessId,
-    branchId: branch && branch !== "all" ? branch : null,
-    role: user.role || "staff",
+    branchId: effectiveBranchId,
+    assignedBranchId,
+    role,
     plan,
   };
 }

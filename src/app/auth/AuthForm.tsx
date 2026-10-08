@@ -67,6 +67,11 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
           placeholder="At least 8 characters"
         />
       </label>
+      {mode === "login" && (
+        <a className="auth-forgot" href="/auth/forgot-password">
+          Forgot your password?
+        </a>
+      )}
       {error && <p className="form-error">{error}</p>}
       <button className="button dark" disabled={loading}>
         {loading

@@ -11,12 +11,15 @@ export async function GET() {
     [context.businessId],
   );
   const history = await db.query(
-    "select id,plan,amount,currency,status,provider_reference,created_at from payments where user_id=$1 order by created_at desc",
-    [context.user.sub],
+    "select id,plan,amount,currency,status,provider_reference,created_at from payments where user_id=$1 and business_id=$2 order by created_at desc",
+    [context.user.sub, context.businessId],
   );
-  return NextResponse.json({
-    plan: business.rows[0],
-    history: history.rows,
-    owner: context.role === "owner",
-  });
+  return NextResponse.json(
+    {
+      plan: business.rows[0],
+      history: history.rows,
+      owner: context.role === "owner",
+    },
+    { headers: { "Cache-Control": "no-store" } },
+  );
 }

@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     );
   const selectedBusiness = cookie.get("regsure_business")?.value;
   const result = await db.query(
-    "select rt.id,rt.user_id,rt.platform,u.email,coalesce(b.plan,u.plan) as plan,m.business_id,m.role from auth_refresh_tokens rt join users u on u.id=rt.user_id left join lateral (select business_id,role from business_memberships where user_id=u.id and ($2 is null or business_id::text=$2) order by created_at limit 1) m on true left join businesses b on b.id=m.business_id where rt.token_hash=$1 and (rt.revoked_at is null or rt.revoked_at>now()-interval '30 seconds') and rt.expires_at>now()",
+    "select rt.id,rt.user_id,rt.platform,u.email,coalesce(b.plan,u.plan) as plan,m.business_id,m.role from auth_refresh_tokens rt join users u on u.id=rt.user_id left join lateral (select business_id,role from business_memberships where user_id=u.id and ($2::text is null or business_id::text=$2::text) order by created_at limit 1) m on true left join businesses b on b.id=m.business_id where rt.token_hash=$1 and (rt.revoked_at is null or rt.revoked_at>now()-interval '30 seconds') and rt.expires_at>now()",
     [hashRefreshToken(raw), selectedBusiness || null],
   );
   const row = result.rows[0];

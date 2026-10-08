@@ -20,8 +20,15 @@ export async function POST(request: Request) {
     );
   const reference = `regsure-${context.user.sub}-${Date.now()}`;
   await db.query(
-    "insert into payments (user_id,provider,provider_reference,plan,amount) values ($1,$2,$3,$4,$5)",
-    [context.user.sub, "flutterwave", reference, plan, prices[plan]],
+    "insert into payments (user_id,business_id,provider,provider_reference,plan,amount) values ($1,$2,$3,$4,$5,$6)",
+    [
+      context.user.sub,
+      context.businessId,
+      "flutterwave",
+      reference,
+      plan,
+      prices[plan],
+    ],
   );
   const response = await fetch("https://api.flutterwave.com/v3/payments", {
     method: "POST",

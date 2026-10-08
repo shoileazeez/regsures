@@ -27,5 +27,12 @@ export async function POST(request: Request) {
     maxAge: 60 * 60 * 24 * 30,
     path: "/",
   });
+  response.cookies.set("regsure_branch", "all", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 24 * 30,
+    path: "/",
+  });
   return response;
 }

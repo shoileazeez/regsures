@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     const business = (
       await client.query(
         "insert into businesses (owner_id,name,plan) values ($1,$2,$3) returning id,name,plan",
-        [user.sub, name, plan],
+        [user.sub, name, plan === "free" ? "free" : "free"],
       )
     ).rows[0];
     await client.query(
@@ -27,7 +27,10 @@ export async function POST(request: Request) {
       [business.id, user.sub],
     );
     await client.query("commit");
-    return NextResponse.json({ business }, { status: 201 });
+    return NextResponse.json(
+      { business, requestedPlan: plan },
+      { status: 201 },
+    );
   } catch {
     await client.query("rollback");
     return NextResponse.json(

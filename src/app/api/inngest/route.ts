@@ -39,18 +39,38 @@ const sendInviteEmail = inngest.createFunction(
   { id: "send-business-invite", retries: 5 },
   { event: "regsure/team.invite.created" },
   async ({ event }) => {
-    const { email, token, businessName, role } = event.data as {
+    const { email, token, businessName, role, branchName } = event.data as {
       email: string;
       token: string;
       businessName: string;
       role: string;
+      branchName?: string;
     };
     const link = `${process.env.APP_URL || "http://localhost:3000"}/invite/accept?token=${token}`;
     await sendMailgunEmail({
       to: email,
       subject: `You have been invited to ${businessName} on Regsure`,
       html: emailShell(
-        `<h1 style="font-size:32px;line-height:1.05;margin:0 0 18px">Join ${businessName}.</h1><p style="font-size:16px;line-height:1.6;color:#687270">You have been invited to work as a <strong>${role}</strong> on Regsure.</p><a href="${link}" style="display:inline-block;background:#142b2b;color:#f4f0e8;text-decoration:none;padding:15px 20px;margin:18px 0">Accept invitation ↗</a><p style="font-size:13px;color:#687270">This invitation expires in 7 days.</p>`,
+        `<h1 style="font-size:32px;line-height:1.05;margin:0 0 18px">Join ${businessName}.</h1><p style="font-size:16px;line-height:1.6;color:#687270">You have been invited to work as a <strong>${role}</strong> on Regsure.</p><p style="font-size:14px;line-height:1.6;color:#687270">Workspace access: <strong>${branchName || "all branches"}</strong>.</p><a href="${link}" style="display:inline-block;background:#142b2b;color:#f4f0e8;text-decoration:none;padding:15px 20px;margin:18px 0">Accept invitation ↗</a><p style="font-size:13px;color:#687270">This invitation expires in 7 days.</p>`,
+      ),
+    });
+    return { sent: true };
+  },
+);
+const sendInviteRevokedEmail = inngest.createFunction(
+  { id: "send-invite-revoked-email", retries: 5 },
+  { event: "regsure/team.invite.revoked" },
+  async ({ event }) => {
+    const { email, businessName, reason } = event.data as {
+      email: string;
+      businessName: string;
+      reason: string;
+    };
+    await sendMailgunEmail({
+      to: email,
+      subject: `Your invitation to ${businessName} was revoked`,
+      html: emailShell(
+        `<h1 style="font-size:32px;line-height:1.05;margin:0 0 18px">Invitation update.</h1><p style="font-size:16px;line-height:1.6;color:#687270">Your invitation to <strong>${businessName}</strong> is no longer active.</p><p style="font-size:14px;line-height:1.6;color:#687270">Reason: ${reason}</p>`,
       ),
     });
     return { sent: true };
@@ -133,6 +153,7 @@ export const { GET, POST, PUT } = serve({
     sendVerificationEmail,
     sendProductUpdatesEmail,
     sendInviteEmail,
+    sendInviteRevokedEmail,
     sendPlanSuccessEmail,
     subscriptionReminders,
   ],

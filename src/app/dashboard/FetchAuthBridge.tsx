@@ -16,13 +16,17 @@ export default function FetchAuthBridge() {
         button.textContent = "Saving...";
       }
       try {
-        let response = await original(input, init);
         const url =
           typeof input === "string"
             ? input
             : input instanceof Request
               ? input.url
               : "";
+        const requestInit =
+          method === "GET" && url.startsWith("/api/")
+            ? { ...(init || {}), cache: "no-store" as RequestCache }
+            : init;
+        let response = await original(input, requestInit);
         if (method !== "GET" && url.startsWith("/api/")) {
           response
             .clone()
@@ -62,7 +66,7 @@ export default function FetchAuthBridge() {
         const refreshed = await refresh;
         if (!refreshed.ok) return response;
         return original(input, {
-          ...(init || {}),
+          ...(requestInit || {}),
           credentials: "include",
           __retried: true,
         } as RequestInit);

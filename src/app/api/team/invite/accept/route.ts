@@ -8,7 +8,7 @@ import { inngest } from "@/lib/inngest";
 export async function POST(request: Request) {
   const { token, password, name } = await request.json();
   const invite = await db.query(
-    "select id,business_id,email,role,expires_at,accepted_at from team_invites where token=$1",
+    "select id,business_id,email,role,branch_id,expires_at,accepted_at from team_invites where token=$1 and revoked_at is null",
     [token],
   );
   const row = invite.rows[0];
@@ -21,6 +21,21 @@ export async function POST(request: Request) {
   let user: AuthPayload;
   let createdJwt: string | null = null;
   const response = NextResponse.json({ ok: true, businessId: row.business_id });
+  const setWorkspaceCookies = (target: NextResponse) => {
+    const options = {
+      httpOnly: true,
+      sameSite: "lax" as const,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 30,
+      path: "/",
+    };
+    target.cookies.set("regsure_business", String(row.business_id), options);
+    target.cookies.set(
+      "regsure_branch",
+      row.branch_id ? String(row.branch_id) : "all",
+      options,
+    );
+  };
   if (!existingUser) {
     if (!password || password.length < 8)
       return NextResponse.json(
@@ -69,8 +84,8 @@ export async function POST(request: Request) {
       { status: 401 },
     );
   await db.query(
-    "insert into business_memberships (business_id,user_id,role) values ($1,$2,$3) on conflict do nothing",
-    [row.business_id, user.sub, row.role],
+    "insert into business_memberships (business_id,user_id,role,branch_id) values ($1,$2,$3,$4) on conflict (business_id,user_id) do update set branch_id=excluded.branch_id",
+    [row.business_id, user.sub, row.role, row.branch_id || null],
   );
   await db.query(
     "update team_invites set accepted_at=now(),accepted_by=$1 where id=$2",
@@ -89,7 +104,9 @@ export async function POST(request: Request) {
       maxAge: 60 * 60 * 24 * 7,
       path: "/",
     });
+    setWorkspaceCookies(verificationResponse);
     return verificationResponse;
   }
+  setWorkspaceCookies(response);
   return response;
 }

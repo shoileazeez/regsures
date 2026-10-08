@@ -26,6 +26,12 @@ export async function POST(request: Request) {
     amountPaid = 0,
     notes,
   } = await request.json();
+  const saleBranchId = branchId || context.branchId || null;
+  if (context.assignedBranchId && saleBranchId !== context.assignedBranchId)
+    return NextResponse.json(
+      { error: "You can only record sales for your assigned branch." },
+      { status: 403 },
+    );
   if (!Array.isArray(items) || !items.length)
     return NextResponse.json(
       { error: "Add at least one product to the sale." },
@@ -37,8 +43,8 @@ export async function POST(request: Request) {
     let subtotal = 0;
     for (const item of items) {
       const check = await client.query(
-        "select price,quantity from inventory_items where id=$1 and business_id=$2 for update",
-        [item.inventoryItemId, context.businessId],
+        "select price,quantity from inventory_items where id=$1 and business_id=$2 and ($3::bigint is null or branch_id=$3 or branch_id is null) for update",
+        [item.inventoryItemId, context.businessId, saleBranchId],
       );
       if (!check.rows[0] || check.rows[0].quantity < Number(item.quantity))
         throw new Error("Not enough stock for one of the selected products.");
@@ -70,7 +76,7 @@ export async function POST(request: Request) {
         "insert into sales (business_id,branch_id,customer_id,subtotal,discount,total,status,amount_paid,payment_date,notes,salesperson_id,paid_at) values ($1,$2,$3,$4,$5,$6,$7,$8,case when $8>0 then now() end,$9,$10,case when $7='completed' then now() end) returning *",
         [
           context.businessId,
-          branchId || context.branchId || null,
+          saleBranchId,
           customerId || null,
           subtotal,
           safeDiscount,

@@ -50,9 +50,10 @@ const whatsapp = createZaileysAdapter({
   richMessages: true,
 });
 
-const bot = new Chat({
+const adapters = { whatsapp };
+const bot = new Chat<typeof adapters>({
   userName: "Regsure Eve",
-  adapters: { whatsapp },
+  adapters,
   state: createMemoryState(),
 });
 

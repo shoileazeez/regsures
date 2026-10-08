@@ -7,8 +7,8 @@ export async function GET() {
   const c = await getBusinessContext();
   if (!c) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
   const r = await db.query(
-    "select * from inventory_items where business_id=$1 order by name",
-    [c.businessId],
+    "select * from inventory_items where business_id=$1 and ($2::bigint is null or branch_id=$2 or branch_id is null) order by name",
+    [c.businessId, c.branchId],
   );
   return NextResponse.json({ items: r.rows });
 }
@@ -23,6 +23,12 @@ export async function POST(req: Request) {
   const b = await req.json();
   const q = Number(b.quantity);
   const reorderPoint = Math.max(0, Number(b.reorderPoint) || 0);
+  const itemBranchId = b.branchId || c.branchId || null;
+  if (c.assignedBranchId && itemBranchId !== c.assignedBranchId)
+    return NextResponse.json(
+      { error: "You can only add inventory to your assigned branch." },
+      { status: 403 },
+    );
   if (!b.name || q < 0)
     return NextResponse.json(
       { error: "Name and a valid quantity are required." },
@@ -32,7 +38,7 @@ export async function POST(req: Request) {
     "insert into inventory_items (business_id,branch_id,name,sku,quantity,price,cost_price,category,unit_of_measure,description,opening_stock,reorder_point) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$5,$11) returning *",
     [
       c.businessId,
-      b.branchId || c.branchId || null,
+      itemBranchId,
       b.name,
       b.sku || null,
       q,
@@ -64,7 +70,7 @@ export async function PATCH(req: Request) {
     );
   const b = await req.json();
   const r = await db.query(
-    "update inventory_items set name=$1,sku=$2,quantity=$3,price=$4,cost_price=$5,category=$6,unit_of_measure=$7,description=$8,reorder_point=$9 where id=$10 and business_id=$11 returning *",
+    "update inventory_items set name=$1,sku=$2,quantity=$3,price=$4,cost_price=$5,category=$6,unit_of_measure=$7,description=$8,reorder_point=$9 where id=$10 and business_id=$11 and ($12::bigint is null or branch_id=$12 or branch_id is null) returning *",
     [
       b.name,
       b.sku || null,
@@ -77,6 +83,7 @@ export async function PATCH(req: Request) {
       Math.max(0, Number(b.reorderPoint) || 0),
       b.id,
       c.businessId,
+      c.branchId,
     ],
   );
   if (!r.rows[0])

@@ -18,7 +18,7 @@ export default function Billing() {
         body: JSON.stringify({ transactionId: id, reference: p.get("tx_ref") }),
       }).then((r) => {
         setStatus(r.ok ? "Plan renewal confirmed." : "Payment needs review.");
-        history.replaceState({}, "", "/dashboard/billing");
+        window.history.replaceState({}, "", "/dashboard/billing");
         fetch("/api/billing")
           .then((x) => x.json())
           .then(setB);
@@ -35,6 +35,24 @@ export default function Billing() {
     const d = await r.json();
     if (d.checkoutUrl) location.href = d.checkoutUrl;
     else setStatus(d.error || "Unable to start payment.");
+  }
+  async function reverify(reference: string) {
+    setStatus("Checking payment status...");
+    const response = await fetch("/api/payments/flutterwave/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reference }),
+    });
+    const data = await response.json();
+    setStatus(
+      response.ok && data.status !== "already_processed"
+        ? "Payment verified and plan updated."
+        : response.ok
+          ? "Payment was already processed."
+          : data.error || "Payment could not be verified.",
+    );
+    const billing = await fetch("/api/billing", { cache: "no-store" });
+    if (billing.ok) setB(await billing.json());
   }
   if (!b)
     return (
@@ -97,14 +115,24 @@ export default function Billing() {
         </p>
         {b.owner && (
           <div>
-            {plan !== "basic" && (
+            {plan === "free" && (
               <button className="button dark" onClick={() => pay("basic")}>
-                Upgrade or renew Basic
+                Upgrade to Basic
               </button>
             )}
-            {plan !== "pro" && (
+            {plan === "free" && (
               <button className="button dark" onClick={() => pay("pro")}>
-                Upgrade or renew Pro
+                Upgrade to Pro
+              </button>
+            )}
+            {plan === "basic" && (
+              <button className="button dark" onClick={() => pay("pro")}>
+                Upgrade to Pro
+              </button>
+            )}
+            {plan === "pro" && (
+              <button className="button dark" onClick={() => pay("pro")}>
+                Renew Pro
               </button>
             )}
           </div>
@@ -193,6 +221,19 @@ export default function Billing() {
                     Coverage ends: {paidExpiry.toLocaleDateString()}
                   </small>
                 </div>
+                {b.owner && x.status === "pending" && (
+                  <div className="billing-payment-actions">
+                    <button
+                      className="text-link"
+                      onClick={() => reverify(x.provider_reference)}
+                    >
+                      Reverify
+                    </button>
+                    <button className="text-link" onClick={() => pay(x.plan)}>
+                      Retry payment
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })

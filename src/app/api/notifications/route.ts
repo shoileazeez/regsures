@@ -7,20 +7,30 @@ export async function GET() {
   if (!context)
     return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
   const result = await db.query(
-    "select id,type,title,body,read_at,created_at from notifications where user_id=$1 order by created_at desc limit 50",
-    [context.user.sub],
+    "select id,type,title,body,read_at,created_at from notifications where user_id=$1 and business_id=$2 order by created_at desc limit 50",
+    [context.user.sub, context.businessId],
   );
-  return NextResponse.json({ notifications: result.rows });
+  return NextResponse.json(
+    { notifications: result.rows },
+    { headers: { "Cache-Control": "no-store" } },
+  );
 }
 export async function PATCH(request: Request) {
   const context = await getBusinessContext();
   if (!context)
     return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
-  const { id } = await request.json();
-  await db.query(
-    "update notifications set read_at=now() where id=$1 and user_id=$2",
-    [id, context.user.sub],
-  );
+  const { id, all } = await request.json();
+  if (all) {
+    await db.query(
+      "update notifications set read_at=now() where user_id=$1 and business_id=$2 and read_at is null",
+      [context.user.sub, context.businessId],
+    );
+  } else {
+    await db.query(
+      "update notifications set read_at=now() where id=$1 and user_id=$2 and business_id=$3",
+      [id, context.user.sub, context.businessId],
+    );
+  }
   return NextResponse.json({ ok: true });
 }
 export async function POST(request: Request) {

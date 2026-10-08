@@ -1,3 +1,433 @@
-.inline-create{display:flex;gap:10px;margin:55px 0 30px}.inline-create input,.inline-create select,.invite-form input,.invite-form select{border:0;border-bottom:1px solid var(--ink);background:transparent;padding:13px 0;font:13px 'DM Sans';outline:0}.inline-create .button{border:0;cursor:pointer;white-space:nowrap}.data-list{border-top:2px solid var(--ink)}.data-row{display:flex;justify-content:space-between;padding:20px 0;border-bottom:1px solid var(--line)}.data-row span{color:#687270;font-size:13px}.role-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);margin-top:55px}.role-grid>div{background:var(--paper);padding:22px}.role-grid b{font-size:20px}.role-grid p{font-size:13px;line-height:1.5;color:#687270}.invite-form{margin-top:45px;border-top:2px solid var(--ink);padding-top:25px;display:flex;gap:15px;align-items:end;flex-wrap:wrap}.invite-form h2{font-size:25px;width:100%}.invite-form .button{border:0;cursor:pointer}.invite-form small{width:100%;font:11px 'DM Mono',monospace}.branch-form{max-width:760px}.branch-form .inline-create{margin-bottom:10px}.settings-list{margin-top:60px;border-top:2px solid var(--ink)}.settings-list>div{border-bottom:1px solid var(--line);padding:26px 0}.settings-list h2{font-size:23px}.settings-list p{color:#687270}.settings-list a{color:var(--ink);font-size:13px;text-decoration:none;border-bottom:1px solid var(--orange);padding-bottom:4px}
-.member-list .data-row{align-items:center;gap:18px}.member-list small{display:block;color:#687270;margin-top:5px}.member-list button{border:0;background:none;color:#b23d2e;cursor:pointer;font:12px 'DM Sans'}
-@media(max-width:800px){.inline-create{display:grid;grid-template-columns:1fr;margin-top:40px}.role-grid{grid-template-columns:1fr}.invite-form{display:grid}.invite-form h2{width:auto}.data-row{gap:20px}.data-row span{text-align:right}}
+.inline-create {
+  display: flex;
+  gap: 10px;
+  margin: 55px 0 30px;
+}
+.member-list .member-email {
+  display: block;
+  padding: 0;
+  color: var(--ink);
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-color: var(--orange);
+  text-underline-offset: 3px;
+}
+.member-danger {
+  border: 0;
+  background: transparent;
+  color: #b23d2e;
+  cursor: pointer;
+  font: 12px "DM Sans";
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.inline-create input,
+.inline-create select,
+.invite-form input,
+.invite-form select {
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  background: transparent;
+  padding: 13px 0;
+  font: 13px "DM Sans";
+  outline: 0;
+}
+.inline-create .button {
+  border: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.data-list {
+  border-top: 2px solid var(--ink);
+}
+.data-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line);
+}
+.data-row span {
+  color: #687270;
+  font-size: 13px;
+}
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--line);
+  margin-top: 55px;
+}
+.role-grid > div {
+  background: var(--paper);
+  padding: 22px;
+}
+.role-grid b {
+  font-size: 20px;
+}
+.role-grid p {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #687270;
+}
+.invite-form {
+  margin-top: 45px;
+  border-top: 2px solid var(--ink);
+  padding-top: 25px;
+  display: flex;
+  gap: 15px;
+  align-items: end;
+  flex-wrap: wrap;
+}
+.invite-form h2 {
+  font-size: 25px;
+  width: 100%;
+}
+.invite-form .button {
+  border: 0;
+  cursor: pointer;
+}
+.invite-form small {
+  width: 100%;
+  font:
+    11px "DM Mono",
+    monospace;
+}
+.branch-form {
+  max-width: 760px;
+}
+.branch-form .inline-create {
+  margin-bottom: 10px;
+}
+.settings-list {
+  margin-top: 60px;
+  border-top: 2px solid var(--ink);
+}
+.settings-list > div {
+  border-bottom: 1px solid var(--line);
+  padding: 26px 0;
+}
+.settings-list h2 {
+  font-size: 23px;
+}
+.settings-list p {
+  color: #687270;
+}
+.settings-list a {
+  color: var(--ink);
+  font-size: 13px;
+  text-decoration: none;
+  border-bottom: 1px solid var(--orange);
+  padding-bottom: 4px;
+}
+.member-list .data-row {
+  align-items: center;
+  gap: 18px;
+}
+.member-list small {
+  display: block;
+  color: #687270;
+  margin-top: 5px;
+}
+.member-list button {
+  border: 0;
+  background: none;
+  color: #b23d2e;
+  cursor: pointer;
+  font: 12px "DM Sans";
+}
+@media (max-width: 800px) {
+  .inline-create {
+    display: grid;
+    grid-template-columns: 1fr;
+    margin-top: 40px;
+  }
+  .role-grid {
+    grid-template-columns: 1fr;
+  }
+  .invite-form {
+    display: grid;
+  }
+  .invite-form h2 {
+    width: auto;
+  }
+  .data-row {
+    gap: 20px;
+  }
+  .data-row span {
+    text-align: right;
+  }
+}
+.business-plan-picker {
+  border: 0;
+  margin: 34px 0 8px;
+  padding: 0;
+}
+.business-plan-picker legend {
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.business-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.business-plan-grid label {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  min-height: 170px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: #ebe9df;
+  cursor: pointer;
+}
+.business-plan-grid label.selected {
+  border: 2px solid var(--ink);
+  background: #d7ee2b;
+}
+.business-plan-grid input {
+  position: absolute;
+  opacity: 0;
+}
+.business-plan-grid strong {
+  font-size: 20px;
+}
+.business-plan-grid b {
+  font:
+    18px "DM Mono",
+    monospace;
+}
+.business-plan-grid span {
+  color: #687270;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.business-plan-grid label.selected span {
+  color: var(--ink);
+}
+@media (max-width: 800px) {
+  .business-plan-grid {
+    grid-template-columns: 1fr;
+  }
+  .business-plan-grid label {
+    min-height: auto;
+  }
+}
+.notification-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 40px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 34px;
+}
+.notification-heading h1 {
+  max-width: 760px;
+}
+.notification-count {
+  min-width: 130px;
+  border-left: 1px solid var(--line);
+  padding-left: 22px;
+  padding-bottom: 5px;
+}
+.notification-count strong {
+  display: block;
+  font-size: 38px;
+  line-height: 1;
+}
+.notification-count span {
+  display: block;
+  margin-top: 8px;
+  color: #687270;
+  font:
+    11px "DM Mono",
+    monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.notification-toolbar {
+  display: grid;
+  grid-template-columns: auto 160px minmax(160px, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  margin: 34px 0 18px;
+}
+.notification-filters {
+  display: flex;
+  border: 1px solid var(--line);
+  padding: 3px;
+  background: #ebe9df;
+}
+.notification-filters button,
+.notification-mark-all {
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font: 12px "DM Sans";
+  padding: 10px 13px;
+}
+.notification-filters button.is-active {
+  background: var(--ink);
+  color: var(--paper);
+}
+.notification-toolbar select,
+.notification-toolbar input {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font: 12px "DM Sans";
+  padding: 11px 12px;
+  outline: 0;
+}
+.notification-toolbar input:focus,
+.notification-toolbar select:focus {
+  border-color: var(--orange);
+}
+.notification-mark-all {
+  border: 1px solid var(--ink);
+  white-space: nowrap;
+}
+.notification-mark-all:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+.notification-list {
+  border-top: 2px solid var(--ink);
+}
+.notification-item {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: start;
+  border-bottom: 1px solid var(--line);
+  padding: 22px 0;
+}
+.notification-item.is-unread {
+  background: linear-gradient(90deg, rgba(215, 238, 43, 0.13), transparent 75%);
+}
+.notification-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font:
+    12px "DM Mono",
+    monospace;
+  font-weight: 700;
+}
+.notification-icon-payment {
+  background: #d7ee2b;
+}
+.notification-icon-billing {
+  background: #f36d42;
+}
+.notification-icon-inventory {
+  background: #c8dfd8;
+}
+.notification-icon-sales {
+  background: #f1d7a8;
+}
+.notification-icon-team {
+  background: #d8c8e9;
+}
+.notification-icon-system {
+  background: #d7d8d2;
+}
+.notification-copy {
+  min-width: 0;
+}
+.notification-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  color: #687270;
+  font:
+    10px "DM Mono",
+    monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.notification-meta span {
+  color: var(--ink);
+}
+.notification-copy h2 {
+  font-size: 19px;
+  margin: 10px 0 5px;
+}
+.notification-copy p {
+  color: #687270;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 700px;
+}
+.notification-read {
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font:
+    11px "DM Mono",
+    monospace;
+  text-decoration: underline;
+  text-decoration-color: var(--orange);
+  text-underline-offset: 4px;
+  padding: 4px 0;
+}
+.notification-item.is-read .notification-copy h2 {
+  font-weight: 500;
+}
+.empty-dashboard {
+  padding: 65px 0;
+}
+.empty-dashboard h2 {
+  margin: 0 0 8px;
+}
+.empty-dashboard p {
+  color: #687270;
+  margin: 0;
+}
+@media (max-width: 800px) {
+  .notification-heading {
+    display: block;
+  }
+  .notification-count {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    margin-top: 28px;
+    padding: 18px 0 0;
+  }
+  .notification-toolbar {
+    grid-template-columns: 1fr 1fr;
+  }
+  .notification-filters {
+    grid-column: 1/-1;
+  }
+  .notification-toolbar input {
+    grid-column: 1/-1;
+  }
+  .notification-mark-all {
+    grid-column: 1/-1;
+  }
+  .notification-item {
+    grid-template-columns: 34px minmax(0, 1fr);
+  }
+  .notification-icon {
+    width: 32px;
+    height: 32px;
+  }
+  .notification-read {
+    grid-column: 2;
+    text-align: left;
+  }
+  .notification-meta {
+    display: block;
+  }
+  .notification-meta time {
+    display: block;
+    margin-top: 5px;
+  }
+}

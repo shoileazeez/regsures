@@ -44,7 +44,7 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   const payment = await db.query(
-    "select plan,amount,status from payments where provider_reference=$1 and user_id=$2",
+    "select plan,amount,status,business_id from payments where provider_reference=$1 and user_id=$2",
     [data.tx_ref, context.user.sub],
   );
   if (!payment.rows[0])
@@ -58,6 +58,11 @@ export async function POST(request: Request) {
       status: "already_processed",
       plan: payment.rows[0].plan,
     });
+  if (String(payment.rows[0].business_id) !== String(context.businessId))
+    return NextResponse.json(
+      { error: "This payment belongs to another workspace." },
+      { status: 409 },
+    );
   const expires = new Date();
   expires.setMonth(expires.getMonth() + 1);
   const activated = await db.query(
@@ -72,7 +77,7 @@ export async function POST(request: Request) {
     });
   await db.query(
     "update businesses set plan=$1,plan_started_at=now(),plan_expires_at=$2::timestamptz,grace_until=$2::timestamptz + interval '7 days' where id=$3",
-    [payment.rows[0].plan, expires, context.businessId],
+    [payment.rows[0].plan, expires, payment.rows[0].business_id],
   );
   await createNotification({
     businessId: context.businessId!,

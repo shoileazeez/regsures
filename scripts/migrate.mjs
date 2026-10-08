@@ -30,6 +30,9 @@ try {
     "014_ai_tokens.sql",
     "015_alert_tracking.sql",
     "016_whatsapp_link_codes.sql",
+    "017_payment_business.sql",
+    "018_membership_branches.sql",
+    "019_invite_lifecycle.sql",
   ];
   for (const migration of migrations) {
     const applied = await client.query(

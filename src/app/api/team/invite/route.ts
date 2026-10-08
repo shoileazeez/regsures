@@ -7,7 +7,7 @@ import { inngest } from "@/lib/inngest";
 import { createNotification } from "@/lib/notifications";
 export async function POST(req: Request) {
   const c = await getBusinessContext();
-  if (!c || !hasPlanAccess(c.plan, "basic") || !can(c.role, "team:manage"))
+  if (!c || c.role !== "owner" || !hasPlanAccess(c.plan, "basic"))
     return NextResponse.json(
       { error: "Team invites are available on Basic and Pro plans." },
       { status: 403 },
@@ -21,16 +21,32 @@ export async function POST(req: Request) {
       { error: "Basic plan allows up to two team members or pending invites." },
       { status: 403 },
     );
-  const { email, role } = await req.json();
+  const { email, role, branchId } = await req.json();
   if (!email || !["admin", "manager", "staff"].includes(role))
     return NextResponse.json(
       { error: "Email and valid role are required." },
       { status: 400 },
     );
+  let branchName = "all branches";
+  if (branchId) {
+    const branch = await db.query(
+      "select name from branches where id=$1 and business_id=$2",
+      [branchId, c.businessId],
+    );
+    if (!branch.rows[0])
+      return NextResponse.json(
+        { error: "That branch is not part of this business." },
+        { status: 400 },
+      );
+    branchName = branch.rows[0].name;
+  }
+  const business = await db.query("select name from businesses where id=$1", [
+    c.businessId,
+  ]);
   const token = randomUUID();
   const r = await db.query(
-    "insert into team_invites (business_id,email,role,token,expires_at) values ($1,$2,$3,$4,now()+interval '7 days') returning token",
-    [c.businessId, email.toLowerCase(), role, token],
+    "insert into team_invites (business_id,email,role,branch_id,token,expires_at) values ($1,$2,$3,$4,$5,now()+interval '7 days') returning token",
+    [c.businessId, email.toLowerCase(), role, branchId || null, token],
   );
   await createNotification({
     businessId: c.businessId!,
@@ -45,7 +61,8 @@ export async function POST(req: Request) {
       email: email.toLowerCase(),
       role,
       token: r.rows[0].token,
-      businessName: "your Regsure business",
+      businessName: business.rows[0]?.name || "your Regsure business",
+      branchName,
     },
   });
   return NextResponse.json({ ok: true }, { status: 201 });

@@ -22,7 +22,7 @@ export async function POST(request: Request) {
       const status =
         data.status === "successful" ? "successful" : data.status || "received";
       const payment = await db.query(
-        "select user_id,plan,amount from payments where provider_reference=$1",
+        "select user_id,business_id,plan,amount from payments where provider_reference=$1",
         [reference],
       );
       await db.query(
@@ -32,14 +32,10 @@ export async function POST(request: Request) {
       if (status === "successful" && payment.rows[0]) {
         const expires = new Date();
         expires.setMonth(expires.getMonth() + 1);
-        const business = await db.query(
-          "select id,owner_id from businesses where owner_id=$1 order by created_at limit 1",
-          [payment.rows[0].user_id],
-        );
-        if (business.rows[0]) {
+        if (payment.rows[0].business_id) {
           await db.query(
             "update businesses set plan=$1,plan_started_at=now(),plan_expires_at=$2::timestamptz,grace_until=$2::timestamptz + interval '7 days' where id=$3",
-            [payment.rows[0].plan, expires, business.rows[0].id],
+            [payment.rows[0].plan, expires, payment.rows[0].business_id],
           );
         }
       }

@@ -1,15 +1,24 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 export default function Branches() {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [message, setMessage] = useState("");
+  const [members, setMembers] = useState<
+    Array<{ id: number; name: string; email: string }>
+  >([]);
+  const [assignee, setAssignee] = useState("");
+  useEffect(() => {
+    fetch("/api/team/members")
+      .then((r) => r.json())
+      .then((d) => setMembers(d.members || []));
+  }, []);
   async function add(e: React.FormEvent) {
     e.preventDefault();
     const r = await fetch("/api/branches", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, address }),
+      body: JSON.stringify({ name, address, userId: assignee || undefined }),
     });
     const d = await r.json();
     setMessage(r.ok ? "Branch created." : d.error);
@@ -47,6 +56,18 @@ export default function Branches() {
             value={address}
             onChange={(e) => setAddress(e.target.value)}
           />
+          <select
+            value={assignee}
+            onChange={(e) => setAssignee(e.target.value)}
+            aria-label="Assign team member"
+          >
+            <option value="">Assign later or all-business access</option>
+            {members.map((member) => (
+              <option value={member.id} key={member.id}>
+                {member.name} · {member.email}
+              </option>
+            ))}
+          </select>
           <button className="button dark">Create branch +</button>
         </form>
         {message && <small>{message}</small>}

@@ -30,18 +30,16 @@ export default function DashboardShell({
   );
   const [selected, setSelected] = useState("");
   const [selectedBranch, setSelectedBranch] = useState("all");
+  const [assignedBranch, setAssignedBranch] = useState<string | null>(null);
   useEffect(() => {
-    fetch("/api/businesses")
+    fetch("/api/businesses", { cache: "no-store" })
       .then((r) => r.json())
       .then((d) => {
         setBusinesses(d.businesses || []);
-        if (d.businesses?.[0]) setSelected(String(d.businesses[0].id));
+        if (d.selectedBusinessId) setSelected(String(d.selectedBusinessId));
       });
-    fetch("/api/branches")
-      .then((r) => r.json())
-      .then((d) => setBranches(d.branches || []));
     const load = () =>
-      fetch("/api/notifications")
+      fetch("/api/notifications", { cache: "no-store" })
         .then((r) => (r.ok ? r.json() : null))
         .then(
           (d) =>
@@ -54,23 +52,36 @@ export default function DashboardShell({
     const timer = setInterval(load, 30000);
     return () => clearInterval(timer);
   }, []);
+  useEffect(() => {
+    if (!selected) return;
+    setSelectedBranch("all");
+    fetch("/api/branches", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : { branches: [] }))
+      .then((d) => {
+        setBranches(d.branches || []);
+        setAssignedBranch(d.assignedBranchId || null);
+        setSelectedBranch(d.assignedBranchId || d.selectedBranchId || "all");
+      });
+  }, [selected]);
   async function switchBusiness(id: string) {
     setSelected(id);
-    await fetch("/api/businesses/switch", {
+    const response = await fetch("/api/businesses/switch", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ businessId: id }),
     });
-    router.refresh();
+    if (!response.ok) return;
+    window.location.assign(path);
   }
   async function switchBranch(id: string) {
     setSelectedBranch(id);
-    await fetch("/api/branches/switch", {
+    const response = await fetch("/api/branches/switch", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ branchId: id }),
     });
-    router.refresh();
+    if (!response.ok) return;
+    window.location.assign(path);
   }
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -83,32 +94,38 @@ export default function DashboardShell({
           <img className="mark-logo" src="/regsure-mark.svg" alt="" />
           <span>regsure</span>
         </a>
-        {businesses.length > 1 && (
-          <select
-            className="business-switcher"
-            value={selected}
-            onChange={(e) => switchBusiness(e.target.value)}
-          >
-            {businesses.map((b) => (
-              <option value={b.id} key={b.id}>
-                {b.name}
-              </option>
-            ))}
-          </select>
+        {businesses.length > 0 && (
+          <label className="switcher-field">
+            <span>Workspace switcher</span>
+            <select
+              className="business-switcher"
+              value={selected}
+              onChange={(e) => switchBusiness(e.target.value)}
+            >
+              {businesses.map((b) => (
+                <option value={b.id} key={b.id}>
+                  {b.name}
+                </option>
+              ))}
+            </select>
+          </label>
         )}
         {branches.length > 0 && (
-          <select
-            className="business-switcher branch-switcher"
-            value={selectedBranch}
-            onChange={(e) => switchBranch(e.target.value)}
-          >
-            <option value="all">All branches</option>
-            {branches.map((b) => (
-              <option value={b.id} key={b.id}>
-                {b.name}
-              </option>
-            ))}
-          </select>
+          <label className="switcher-field">
+            <span>Branch view</span>
+            <select
+              className="business-switcher branch-switcher"
+              value={selectedBranch}
+              onChange={(e) => switchBranch(e.target.value)}
+            >
+              {!assignedBranch && <option value="all">All branches</option>}
+              {branches.map((b) => (
+                <option value={b.id} key={b.id}>
+                  {b.name}
+                </option>
+              ))}
+            </select>
+          </label>
         )}
         <nav>
           {links.map(([label, href]) => (

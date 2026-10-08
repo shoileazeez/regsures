@@ -12,9 +12,9 @@ type Settings = {
 };
 export default function Settings() {
   const [s, setS] = useState<Settings | null>(null);
-  const [tab, setTab] = useState<"profile" | "notifications" | "security">(
-    "profile",
-  );
+  const [modal, setModal] = useState<
+    "profile" | "notifications" | "security" | null
+  >(null);
   const [message, setMessage] = useState("");
   useEffect(() => {
     fetch("/api/settings")
@@ -69,93 +69,176 @@ export default function Settings() {
         <div>
           <h2>Business profile</h2>
           <p>Business name, owner details, and contact information.</p>
-          <button className="text-link" onClick={() => setTab("profile")}>
+          <button className="text-link" onClick={() => setModal("profile")}>
             Edit profile ↗
           </button>
         </div>
         <div>
           <h2>Notifications</h2>
           <p>Choose where restock reminders and payment updates should go.</p>
-          <button className="text-link" onClick={() => setTab("notifications")}>
+          <button
+            className="text-link"
+            onClick={() => setModal("notifications")}
+          >
             Manage notifications ↗
           </button>
         </div>
         <div>
           <h2>Security</h2>
           <p>Review sign-in details and change your password.</p>
-          <a className="text-link" href="/auth/forgot-password">
+          <button className="text-link" onClick={() => setModal("security")}>
             Review security ↗
-          </a>
+          </button>
         </div>
       </div>
-      {tab === "profile" && (
-        <form
-          className="inline-create"
-          onSubmit={(e) => {
-            e.preventDefault();
-            save("profile");
+      {modal && (
+        <div
+          className="settings-modal-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setModal(null);
           }}
         >
-          <input
-            value={s.name}
-            onChange={(e) => setS({ ...s, name: e.target.value })}
-            placeholder="Your name"
-            required
-          />
-          <input
-            value={s.business_name}
-            onChange={(e) => setS({ ...s, business_name: e.target.value })}
-            placeholder="Business name"
-            required
-          />
-          <input
-            value={s.phone || ""}
-            onChange={(e) => setS({ ...s, phone: e.target.value })}
-            placeholder="Phone"
-          />
-          <button className="button dark">Save profile</button>
-        </form>
-      )}
-      {tab === "notifications" && (
-        <form
-          className="inline-create"
-          onSubmit={(e) => {
-            e.preventDefault();
-            save("notifications");
-          }}
-        >
-          <label>
-            <input
-              type="checkbox"
-              checked={s.notification_email}
-              onChange={(e) =>
-                setS({ ...s, notification_email: e.target.checked })
-              }
-            />{" "}
-            Email updates
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={s.restock_notifications}
-              onChange={(e) =>
-                setS({ ...s, restock_notifications: e.target.checked })
-              }
-            />{" "}
-            Restock reminders
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={s.payment_notifications}
-              onChange={(e) =>
-                setS({ ...s, payment_notifications: e.target.checked })
-              }
-            />{" "}
-            Payment updates
-          </label>
-          <button className="button dark">Save notifications</button>
-        </form>
+          <section
+            className="settings-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="settings-modal-title"
+          >
+            <button
+              className="settings-modal-close"
+              type="button"
+              onClick={() => setModal(null)}
+              aria-label="Close settings modal"
+            >
+              ×
+            </button>
+            {modal === "profile" && (
+              <>
+                <p className="kicker">
+                  <span className="kicker-line" />
+                  Business profile
+                </p>
+                <h2 id="settings-modal-title">Edit your workspace details.</h2>
+                <p className="settings-modal-copy">
+                  Keep your name, business identity, and contact details
+                  accurate for invoices, team access, and notifications.
+                </p>
+                <form
+                  className="settings-modal-form"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    save("profile");
+                    setModal(null);
+                  }}
+                >
+                  <input
+                    value={s.name}
+                    onChange={(e) => setS({ ...s, name: e.target.value })}
+                    placeholder="Your name"
+                    required
+                  />
+                  <input
+                    value={s.business_name}
+                    onChange={(e) =>
+                      setS({ ...s, business_name: e.target.value })
+                    }
+                    placeholder="Business name"
+                    required
+                  />
+                  <input
+                    value={s.phone || ""}
+                    onChange={(e) => setS({ ...s, phone: e.target.value })}
+                    placeholder="Phone"
+                  />
+                  <button className="button dark">Save profile</button>
+                </form>
+              </>
+            )}
+            {modal === "notifications" && (
+              <>
+                <p className="kicker">
+                  <span className="kicker-line" />
+                  Notifications
+                </p>
+                <h2 id="settings-modal-title">Choose what reaches you.</h2>
+                <p className="settings-modal-copy">
+                  Control the updates your active workspace sends to your
+                  account.
+                </p>
+                <form
+                  className="settings-modal-form settings-checkboxes"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    save("notifications");
+                    setModal(null);
+                  }}
+                >
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={s.notification_email}
+                      onChange={(e) =>
+                        setS({ ...s, notification_email: e.target.checked })
+                      }
+                    />{" "}
+                    Email updates
+                  </label>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={s.restock_notifications}
+                      onChange={(e) =>
+                        setS({ ...s, restock_notifications: e.target.checked })
+                      }
+                    />{" "}
+                    Restock reminders
+                  </label>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={s.payment_notifications}
+                      onChange={(e) =>
+                        setS({ ...s, payment_notifications: e.target.checked })
+                      }
+                    />{" "}
+                    Payment updates
+                  </label>
+                  <button className="button dark">Save notifications</button>
+                </form>
+              </>
+            )}
+            {modal === "security" && (
+              <>
+                <p className="kicker">
+                  <span className="kicker-line" />
+                  Security
+                </p>
+                <h2 id="settings-modal-title">Review your sign-in settings.</h2>
+                <p className="settings-modal-copy">
+                  Your account email is <strong>{s.email}</strong>. Password
+                  changes happen through a secure, one-time reset link.
+                </p>
+                <div className="security-review">
+                  <div>
+                    <span>Account email</span>
+                    <strong>{s.email}</strong>
+                  </div>
+                  <div>
+                    <span>Password</span>
+                    <strong>Hidden for your protection</strong>
+                  </div>
+                </div>
+                <a
+                  className="button dark settings-modal-action"
+                  href="/auth/forgot-password"
+                >
+                  Change password ↗
+                </a>
+              </>
+            )}
+          </section>
+        </div>
       )}
       {message && <p className="payment-status">{message}</p>}
     </div>

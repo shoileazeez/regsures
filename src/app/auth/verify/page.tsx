@@ -1,8 +1,16 @@
 "use client";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
+import { Suspense } from "react";
 import { showToast } from "../../ToastBridge";
-export default function Verify() {
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={<main className="auth-page" />}>
+      <Verify />
+    </Suspense>
+  );
+}
+function Verify() {
   const params = useSearchParams();
   const router = useRouter();
   const email = params.get("email") || "";

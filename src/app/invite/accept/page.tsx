@@ -1,8 +1,16 @@
 "use client";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
+import { Suspense } from "react";
 import { showToast } from "../../ToastBridge";
-export default function AcceptInvite() {
+export default function AcceptInvitePage() {
+  return (
+    <Suspense fallback={<main className="auth-page" />}>
+      <AcceptInvite />
+    </Suspense>
+  );
+}
+function AcceptInvite() {
   const params = useSearchParams();
   const router = useRouter();
   const [name, setName] = useState("");

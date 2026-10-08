@@ -1,7 +1,15 @@
 "use client";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
-export default function ResetPassword() {
+import { Suspense } from "react";
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<main className="auth-page" />}>
+      <ResetPassword />
+    </Suspense>
+  );
+}
+function ResetPassword() {
   const params = useSearchParams();
   const router = useRouter();
   const [password, setPassword] = useState("");

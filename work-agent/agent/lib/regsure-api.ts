@@ -11,6 +11,17 @@ function tokenFrom(ctx: AgentContext) {
     throw new Error("Sign in to Regsure before using business tools.");
   return token;
 }
+function selectedContext(ctx: AgentContext) {
+  const attributes = ctx.session?.auth?.current?.attributes;
+  return {
+    businessId:
+      typeof attributes?.businessId === "string"
+        ? attributes.businessId
+        : undefined,
+    branchId:
+      typeof attributes?.branchId === "string" ? attributes.branchId : undefined,
+  };
+}
 export async function regsureRequest<T>(
   ctx: AgentContext,
   path: string,
@@ -21,6 +32,12 @@ export async function regsureRequest<T>(
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${tokenFrom(ctx)}`,
+      ...(selectedContext(ctx).businessId
+        ? { "X-Regsure-Business": selectedContext(ctx).businessId }
+        : {}),
+      ...(selectedContext(ctx).branchId
+        ? { "X-Regsure-Branch": selectedContext(ctx).branchId }
+        : {}),
       ...(init.headers || {}),
     },
   });

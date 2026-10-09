@@ -1,4 +1,4 @@
-# Regsure Eve agent
+# Regsure WhatsApp assistant
 
 The agent calls the Regsure backend through `REGSURE_API_URL`. Never hardcode the backend URL in tools or channels.
 

@@ -11,10 +11,13 @@ export default defineTool({
     const sales = data.sales.filter(
       (s) => new Date(s.created_at).getTime() >= since,
     );
+    const completed = sales.filter((s) => s.status === "completed");
+    const outstanding = sales.filter((s) => s.status !== "completed");
     return {
-      transactions: sales.length,
-      total: sales.reduce((sum, s) => sum + Number(s.total || 0), 0),
-      unpaid: sales.filter((s) => s.status !== "completed").length,
+      transactions: completed.length,
+      total: completed.reduce((sum, s) => sum + Number(s.total || 0), 0),
+      unpaid: outstanding.length,
+      outstandingBalance: outstanding.reduce((sum, s) => sum + Math.max(0, Number(s.total || 0) - Number(s.amount_paid || 0)), 0),
     };
   },
 });

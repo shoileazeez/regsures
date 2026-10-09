@@ -16,10 +16,10 @@ export async function GET() {
   const params = context.branchId
     ? [context.businessId, context.branchId]
     : [context.businessId];
-  const [business, sales, customers, daily] = await Promise.all([
+  const [business, sales, customers, daily, unpaid] = await Promise.all([
     db.query("select name from businesses where id=$1", [context.businessId]),
     db.query(
-      `select coalesce(sum(total),0)::int as total,count(*)::int as transactions from sales where business_id=$1${filter} and created_at>=date_trunc('week',now())`,
+      `select coalesce(sum(case when status='completed' then total else 0 end),0)::int as total,count(*) filter (where status='completed')::int as transactions from sales where business_id=$1${filter} and created_at>=date_trunc('week',now())`,
       params,
     ),
     db.query(
@@ -27,7 +27,11 @@ export async function GET() {
       [context.businessId],
     ),
     db.query(
-      `select extract(isodow from created_at)::int as day,coalesce(sum(total),0)::int as total from sales where business_id=$1${filter} and created_at>=now()-interval '7 days' group by 1 order by 1`,
+      `select extract(isodow from created_at)::int as day,coalesce(sum(total),0)::int as total from sales where business_id=$1${filter} and status='completed' and created_at>=now()-interval '7 days' group by 1 order by 1`,
+      params,
+    ),
+    db.query(
+      `select count(*)::int as transactions,coalesce(sum(total-amount_paid),0)::int as total from sales where business_id=$1${filter} and status in ('unpaid','partial')`,
       params,
     ),
   ]);
@@ -37,6 +41,8 @@ export async function GET() {
       sales: sales.rows[0].total,
       transactions: sales.rows[0].transactions,
       customers: customers.rows[0].total,
+      unpaidSales: unpaid.rows[0].transactions,
+      unpaidBalance: unpaid.rows[0].total,
     },
     daily: daily.rows,
     scope: context.branchId ? "branch" : "business",

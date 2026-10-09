@@ -46,7 +46,7 @@ export default function NewBusiness() {
         );
       } else {
         setStatus("Workspace created. Opening dashboard...");
-        router.push("/dashboard");
+        window.location.assign("/dashboard");
       }
     } else setError(d.error || "Unable to create business.");
     setLoading(false);

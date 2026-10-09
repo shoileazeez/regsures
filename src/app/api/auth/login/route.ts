@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { checkPassword, signJwt } from "@/lib/auth";
 import { createRefreshToken } from "@/lib/refresh-tokens";
 import { createAiToken } from "@/lib/ai-token";
+import { cookies } from "next/headers";
 export async function POST(req: Request) {
   try {
     const { email, password, platform = "web" } = await req.json();
@@ -16,9 +17,10 @@ export async function POST(req: Request) {
         { error: "Email or password is incorrect." },
         { status: 401 },
       );
+    const savedBusiness = (await cookies()).get("regsure_business")?.value;
     const m = await db.query(
-      "select business_id,role from business_memberships where user_id=$1 order by created_at limit 1",
-      [u.id],
+      "select business_id,role,branch_id from business_memberships where user_id=$1 order by (case when business_id=$2::bigint then 0 else 1 end),created_at limit 1",
+      [u.id, savedBusiness || null],
     );
     const selected = m.rows[0];
     const mode = platform === "mobile" ? "mobile" : "web";
@@ -65,6 +67,26 @@ export async function POST(req: Request) {
         maxAge: 60 * 60 * 24 * 60,
         path: "/",
       });
+      if (selected?.business_id) {
+        response.cookies.set("regsure_business", String(selected.business_id), {
+          httpOnly: true,
+          sameSite: "lax",
+          secure: process.env.NODE_ENV === "production",
+          maxAge: 60 * 60 * 24 * 30,
+          path: "/",
+        });
+        response.cookies.set(
+          "regsure_branch",
+          selected.branch_id ? String(selected.branch_id) : "all",
+          {
+            httpOnly: true,
+            sameSite: "lax",
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 60 * 60 * 24 * 30,
+            path: "/",
+          },
+        );
+      }
     }
     return response;
   } catch {

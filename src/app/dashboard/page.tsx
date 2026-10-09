@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import DashboardLoading from "./DashboardLoading";
 type Overview = {
   businessName: string;
-  summary: { sales: number; transactions: number; customers: number };
+  summary: { sales: number; transactions: number; customers: number; unpaidSales: number; unpaidBalance: number };
   daily: Array<{ day: number; total: number }>;
 };
 export default function Dashboard() {
@@ -87,6 +87,11 @@ export default function Dashboard() {
             )}
           </strong>
           <small>Sales ready for analysis</small>
+        </div>
+        <div className="dashboard-metric-warning">
+          <span>Unpaid sales</span>
+          <strong>{data ? data.summary.unpaidSales : <span className="metric-skeleton" />}</strong>
+          <small>{data ? `₦${Number(data.summary.unpaidBalance).toLocaleString()} outstanding` : "Awaiting records"}</small>
         </div>
       </section>
       <section className="dashboard-grid">

@@ -2,9 +2,23 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getBusinessContext } from "@/lib/request-auth";
 import { can } from "@/lib/permissions";
-export async function GET() {
+export async function GET(req: Request) {
   const c = await getBusinessContext();
   if (!c) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
+  const customerId = new URL(req.url).searchParams.get("id");
+  if (customerId) {
+    const customer = await db.query(
+      "select * from customers where id=$1 and business_id=$2",
+      [customerId, c.businessId],
+    );
+    if (!customer.rows[0])
+      return NextResponse.json({ error: "Customer not found." }, { status: 404 });
+    const purchases = await db.query(
+      "select s.id,s.total,s.status,s.amount_paid,s.discount,s.created_at,s.payment_date,b.name as branch_name from sales s left join branches b on b.id=s.branch_id where s.customer_id=$1 and s.business_id=$2 order by s.created_at desc",
+      [customerId, c.businessId],
+    );
+    return NextResponse.json({ customer: customer.rows[0], purchases: purchases.rows });
+  }
   const r = await db.query(
     `select c.*,coalesce(sum(case when s.status in ('unpaid','partial') then s.total-s.amount_paid else 0 end),0) as outstanding_balance,count(s.id) as purchase_count from customers c left join sales s on s.customer_id=c.id where c.business_id=$1 group by c.id order by c.created_at desc`,
     [c.businessId],

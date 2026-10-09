@@ -4,9 +4,9 @@ import {
   createHash,
   randomBytes,
 } from "node:crypto";
-import { readMemory, writeMemory } from "./memory";
+import { readMemory, writeMemory } from "./memory.ts";
 
-type Link = { token: string; sessionId?: string };
+export type Link = { token: string; sessionId?: string; businessId?: string };
 const key = createHash("sha256")
   .update(process.env.WHATSAPP_LINK_SECRET || "development-only-secret")
   .digest();
@@ -42,6 +42,8 @@ export async function getWhatsAppLink(threadId: string): Promise<Link | null> {
     token: decrypt(value.token),
     sessionId:
       typeof value.sessionId === "string" ? value.sessionId : undefined,
+    businessId:
+      typeof value.businessId === "string" ? value.businessId : undefined,
   };
 }
 
@@ -49,5 +51,6 @@ export async function saveWhatsAppLink(threadId: string, link: Link) {
   await writeMemory(`whatsapp:${threadId}`, {
     token: encrypt(link.token),
     sessionId: link.sessionId,
+    businessId: link.businessId,
   });
 }

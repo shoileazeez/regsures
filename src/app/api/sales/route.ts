@@ -41,6 +41,7 @@ export async function POST(request: Request) {
   try {
     await client.query("begin");
     let subtotal = 0;
+    let lineDiscount = 0;
     for (const item of items) {
       const check = await client.query(
         "select price,quantity from inventory_items where id=$1 and business_id=$2 and ($3::bigint is null or branch_id=$3 or branch_id is null) for update",
@@ -48,13 +49,20 @@ export async function POST(request: Request) {
       );
       if (!check.rows[0] || check.rows[0].quantity < Number(item.quantity))
         throw new Error("Not enough stock for one of the selected products.");
-      subtotal +=
-        Number(item.quantity) * Number(item.unitPrice || check.rows[0].price);
+      const unitPrice = Number(item.unitPrice || check.rows[0].price);
+      const discountPerUnit = Math.max(0, Number(item.discountPerUnit) || 0);
+      if (discountPerUnit > unitPrice)
+        throw new Error("Per-item discount cannot be greater than the unit price.");
+      subtotal += Number(item.quantity) * unitPrice;
+      lineDiscount += Number(item.quantity) * discountPerUnit;
     }
-    const safeDiscount = Math.max(0, Math.min(Number(discount) || 0, subtotal));
+    const safeDiscount = Math.max(0, Math.min((Number(discount) || 0) + lineDiscount, subtotal));
     const total = subtotal - safeDiscount;
+    const requestedPaid = Number(amountPaid) || 0;
+    if (requestedPaid < 0 || requestedPaid > total)
+      throw new Error("Amount paid cannot be greater than the sale total.");
     const paid = loan
-      ? Math.max(0, Math.min(Number(amountPaid) || 0, total))
+      ? requestedPaid
       : total;
     const status =
       paid >= total ? "completed" : paid > 0 ? "partial" : "unpaid";
@@ -90,8 +98,8 @@ export async function POST(request: Request) {
     ).rows[0];
     for (const item of items) {
       await client.query(
-        "insert into sale_items (sale_id,inventory_item_id,quantity,unit_price) values ($1,$2,$3,$4)",
-        [sale.id, item.inventoryItemId, item.quantity, item.unitPrice],
+        "insert into sale_items (sale_id,inventory_item_id,quantity,unit_price,discount_per_unit) values ($1,$2,$3,$4,$5)",
+        [sale.id, item.inventoryItemId, item.quantity, item.unitPrice, Math.max(0, Number(item.discountPerUnit) || 0)],
       );
       await client.query(
         "update inventory_items set quantity=quantity-$1 where id=$2",
@@ -139,8 +147,13 @@ export async function PATCH(request: Request) {
     );
   const paid = Math.max(
     0,
-    Math.min(Number(amountPaid) || 0, Number(sale.rows[0].total)),
+    Number(amountPaid) || 0,
   );
+  if (Number(amountPaid) < 0 || paid > Number(sale.rows[0].total))
+    return NextResponse.json(
+      { error: "Amount paid cannot be greater than the sale total." },
+      { status: 400 },
+    );
   const status =
     paid >= Number(sale.rows[0].total)
       ? "completed"

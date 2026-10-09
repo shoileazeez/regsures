@@ -13,6 +13,7 @@ export default defineTool({
     category: z.string().optional(),
     unitOfMeasure: z.string().default("unit"),
     description: z.string().optional(),
+    branchId: z.number().int().positive().optional(),
     confirm: z.literal(true),
   }),
   async execute(input, ctx) {

@@ -23,6 +23,8 @@ export async function POST(req: Request) {
   const b = await req.json();
   const q = Number(b.quantity);
   const reorderPoint = Math.max(0, Number(b.reorderPoint) || 0);
+  const thresholdType = b.reorderThresholdType === "percent" ? "percent" : "quantity";
+  const thresholdValue = Math.max(0, Number(b.reorderThresholdValue ?? reorderPoint) || 0);
   const itemBranchId = b.branchId || c.branchId || null;
   if (c.assignedBranchId && itemBranchId !== c.assignedBranchId)
     return NextResponse.json(
@@ -35,7 +37,7 @@ export async function POST(req: Request) {
       { status: 400 },
     );
   const r = await db.query(
-    "insert into inventory_items (business_id,branch_id,name,sku,quantity,price,cost_price,category,unit_of_measure,description,opening_stock,reorder_point) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$5,$11) returning *",
+    "insert into inventory_items (business_id,branch_id,name,sku,quantity,price,cost_price,category,unit_of_measure,description,opening_stock,reorder_point,reorder_threshold_type,reorder_threshold_value) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$5,$11,$12,$13) returning *",
     [
       c.businessId,
       itemBranchId,
@@ -48,9 +50,13 @@ export async function POST(req: Request) {
       b.unitOfMeasure || "unit",
       b.description || null,
       reorderPoint,
+      thresholdType,
+      thresholdValue,
     ],
   );
-  if (reorderPoint > 0 && q <= reorderPoint)
+  const isLowStock = thresholdValue > 0 &&
+    (thresholdType === "percent" ? q <= Math.ceil(q / 100 * thresholdValue) : q <= thresholdValue);
+  if (isLowStock)
     await createNotification({
       businessId: c.businessId!,
       userId: c.user.sub,
@@ -69,9 +75,18 @@ export async function PATCH(req: Request) {
       { status: 403 },
     );
   const b = await req.json();
+  const itemBranchId = b.branchId || c.branchId || null;
+  const thresholdType = b.reorderThresholdType === "percent" ? "percent" : "quantity";
+  const thresholdValue = Math.max(0, Number(b.reorderThresholdValue ?? b.reorderPoint) || 0);
+  if (c.assignedBranchId && itemBranchId !== c.assignedBranchId)
+    return NextResponse.json(
+      { error: "You can only assign inventory to your assigned branch." },
+      { status: 403 },
+    );
   const r = await db.query(
-    "update inventory_items set name=$1,sku=$2,quantity=$3,price=$4,cost_price=$5,category=$6,unit_of_measure=$7,description=$8,reorder_point=$9 where id=$10 and business_id=$11 and ($12::bigint is null or branch_id=$12 or branch_id is null) returning *",
+    "update inventory_items set branch_id=$1,name=$2,sku=$3,quantity=$4,price=$5,cost_price=$6,category=$7,unit_of_measure=$8,description=$9,reorder_point=$10,reorder_threshold_type=$11,reorder_threshold_value=$12 where id=$13 and business_id=$14 and ($15::bigint is null or branch_id=$15 or branch_id is null) returning *",
     [
+      itemBranchId,
       b.name,
       b.sku || null,
       Number(b.quantity),
@@ -81,6 +96,8 @@ export async function PATCH(req: Request) {
       b.unitOfMeasure || "unit",
       b.description || null,
       Math.max(0, Number(b.reorderPoint) || 0),
+      thresholdType,
+      thresholdValue,
       b.id,
       c.businessId,
       c.branchId,
@@ -91,5 +108,15 @@ export async function PATCH(req: Request) {
       { error: "Inventory item not found." },
       { status: 404 },
     );
+  const isLowStock = thresholdValue > 0 &&
+    (thresholdType === "percent" ? Number(r.rows[0].quantity) <= Math.ceil(Number(r.rows[0].opening_stock) / 100 * thresholdValue) : Number(r.rows[0].quantity) <= thresholdValue);
+  if (isLowStock)
+    await createNotification({
+      businessId: c.businessId!,
+      userId: c.user.sub,
+      type: "low_stock",
+      title: `Low stock: ${r.rows[0].name}`,
+      body: `${r.rows[0].name} is at or below its configured alert threshold.`,
+    });
   return NextResponse.json({ item: r.rows[0] });
 }

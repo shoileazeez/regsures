@@ -9,17 +9,42 @@
   outline: 0;
 }
 .switcher-field {
-  display: grid;
-  gap: 6px;
+  display: block;
   margin: -35px 0 35px;
 }
-.switcher-field span {
+.switcher-field summary {
+  list-style: none;
+  cursor: pointer;
   color: #8fa49e;
   font:
     10px "DM Mono",
     monospace;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  padding-bottom: 7px;
+}
+.switcher-field summary::-webkit-details-marker {
+  display: none;
+}
+.switcher-field summary::before {
+  content: "+";
+  display: inline-block;
+  width: 14px;
+  color: var(--orange);
+}
+.switcher-field[open] summary::before {
+  content: "−";
+}
+.switcher-field summary strong {
+  display: block;
+  overflow: hidden;
+  margin-top: 6px;
+  color: var(--paper);
+  font: 12px "DM Sans";
+  letter-spacing: 0;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
 }
 .switcher-field .business-switcher {
   margin: 0;

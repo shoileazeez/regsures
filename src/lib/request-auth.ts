@@ -29,7 +29,10 @@ export function hasPlanAccess(
 export async function getBusinessContext() {
   const user = await getRequestUser();
   if (!user) return null;
-  const selected = (await cookies()).get("regsure_business")?.value;
+  const requestHeaders = await headers();
+  const selected =
+    requestHeaders.get("x-regsure-business") ||
+    (await cookies()).get("regsure_business")?.value;
   const branch = (await cookies()).get("regsure_branch")?.value;
   const businessId = selected || user.businessId || null;
   let plan = user.plan || "free";
@@ -46,9 +49,13 @@ export async function getBusinessContext() {
     assignedBranchId = result.rows[0].branch_id
       ? String(result.rows[0].branch_id)
       : null;
+    if (role === "owner") assignedBranchId = null;
   }
+  const requestedBranch =
+    requestHeaders.get("x-regsure-branch") || branch;
   const effectiveBranchId =
-    assignedBranchId || (branch && branch !== "all" ? branch : null);
+    assignedBranchId ||
+    (requestedBranch && requestedBranch !== "all" ? requestedBranch : null);
   return {
     user,
     businessId,

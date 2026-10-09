@@ -10,12 +10,18 @@ type Item = {
   category?: string;
   unit_of_measure?: string;
   description?: string;
+  branch_id?: number | null;
+  reorder_threshold_type?: "quantity" | "percent";
+  reorder_threshold_value?: number;
 };
+type Branch = { id: number; name: string };
 export default function Inventory() {
   const [items, setItems] = useState<Item[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Item | null>(null);
   const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(true), [saving, setSaving] = useState(false), [error, setError] = useState("");
   const empty = {
     name: "",
     sku: "",
@@ -25,12 +31,22 @@ export default function Inventory() {
     category: "",
     unitOfMeasure: "unit",
     description: "",
+    branchId: "",
+    reorderThresholdType: "quantity",
+    reorderThresholdValue: "",
   };
   const [form, setForm] = useState<any>(empty);
   useEffect(() => {
-    fetch("/api/inventory")
-      .then((r) => r.json())
-      .then((d) => setItems(d.items || []));
+    Promise.all([fetch("/api/inventory"), fetch("/api/branches")])
+      .then(async ([itemsResponse, branchesResponse]) => {
+        const itemsData = await itemsResponse.json();
+        const branchesData = await branchesResponse.json();
+        if (!itemsResponse.ok) throw new Error(itemsData.error || "Unable to load inventory.");
+        setItems(itemsData.items || []);
+        setBranches(branchesData.branches || []);
+      })
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
   }, []);
   function show(item?: Item) {
     setEditing(item || null);
@@ -45,6 +61,9 @@ export default function Inventory() {
             category: item.category || "",
             unitOfMeasure: item.unit_of_measure || "unit",
             description: item.description || "",
+            branchId: item.branch_id || "",
+            reorderThresholdType: item.reorder_threshold_type || "quantity",
+            reorderThresholdValue: item.reorder_threshold_value || "",
           }
         : empty,
     );
@@ -52,6 +71,7 @@ export default function Inventory() {
   }
   async function save(e: React.FormEvent) {
     e.preventDefault();
+    setSaving(true);
     const r = await fetch("/api/inventory", {
       method: editing ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
@@ -65,7 +85,8 @@ export default function Inventory() {
           : [d.item, ...items],
       );
       setOpen(false);
-    }
+    } else setError(d.error || "Unable to save inventory item.");
+    setSaving(false);
   }
   const shown = items.filter(
     (x) =>
@@ -96,6 +117,8 @@ export default function Inventory() {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
+      {error && <p className="form-error">{error}</p>}
+      {loading && <div className="dashboard-loading"><span className="loading-block loading-title" /><span className="loading-line loading-copy" /><div className="loading-grid"><span className="loading-card" /><span className="loading-card" /></div></div>}
       {open && (
         <div className="modal-backdrop">
           <form className="modal-card" onSubmit={save}>
@@ -160,11 +183,30 @@ export default function Inventory() {
                 setForm({ ...form, description: e.target.value })
               }
             />
-            <button className="button dark">Save item</button>
+            <select value={form.branchId} onChange={(e) => setForm({ ...form, branchId: e.target.value })}>
+              <option value="">All branches</option>
+              {branches.map((branch) => <option value={branch.id} key={branch.id}>{branch.name} only</option>)}
+            </select>
+            <label className="form-label">Low-stock alert threshold</label>
+            <div className="form-inline">
+              <input
+                type="number"
+                min="0"
+                max={form.reorderThresholdType === "percent" ? 100 : undefined}
+                placeholder={form.reorderThresholdType === "percent" ? "10" : "10"}
+                value={form.reorderThresholdValue}
+                onChange={(e) => setForm({ ...form, reorderThresholdValue: e.target.value })}
+              />
+              <select value={form.reorderThresholdType} onChange={(e) => setForm({ ...form, reorderThresholdType: e.target.value })}>
+                <option value="quantity">Units remaining</option>
+                <option value="percent">Percent of opening stock</option>
+              </select>
+            </div>
+            <button className="button dark" disabled={saving}>{saving ? "Saving..." : "Save item"}</button>
           </form>
         </div>
       )}
-      <div className="data-list">
+      {!loading && <div className="data-list">
         {shown.length ? (
           shown.map((item) => (
             <div className="data-row" key={item.id}>
@@ -186,7 +228,7 @@ export default function Inventory() {
             </button>
           </div>
         )}
-      </div>
+      </div>}
     </div>
   );
 }

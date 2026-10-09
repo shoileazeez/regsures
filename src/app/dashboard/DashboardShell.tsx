@@ -11,6 +11,7 @@ const links = [
   ["Branches", "/dashboard/branches"],
   ["Billing", "/dashboard/billing"],
   ["Notifications", "/dashboard/notifications"],
+  ["WhatsApp assistant", "/dashboard/whatsapp"],
   ["Settings", "/dashboard/settings"],
   ["New business", "/dashboard/businesses/new"],
 ];
@@ -95,8 +96,14 @@ export default function DashboardShell({
           <span>regsure</span>
         </a>
         {businesses.length > 0 && (
-          <label className="switcher-field">
-            <span>Workspace switcher</span>
+          <details className="switcher-field">
+            <summary>
+              Workspace switcher{" "}
+              <strong>
+                {businesses.find((b) => String(b.id) === selected)?.name ||
+                  "Select workspace"}
+              </strong>
+            </summary>
             <select
               className="business-switcher"
               value={selected}
@@ -108,11 +115,19 @@ export default function DashboardShell({
                 </option>
               ))}
             </select>
-          </label>
+          </details>
         )}
         {branches.length > 0 && (
-          <label className="switcher-field">
-            <span>Branch view</span>
+          <details className="switcher-field">
+            <summary>
+              Branch view{" "}
+              <strong>
+                {selectedBranch === "all"
+                  ? "All branches"
+                  : branches.find((b) => String(b.id) === selectedBranch)
+                      ?.name || "Select branch"}
+              </strong>
+            </summary>
             <select
               className="business-switcher branch-switcher"
               value={selectedBranch}
@@ -125,7 +140,7 @@ export default function DashboardShell({
                 </option>
               ))}
             </select>
-          </label>
+          </details>
         )}
         <nav>
           {links.map(([label, href]) => (

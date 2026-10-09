@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getBusinessContext, hasPlanAccess } from "@/lib/request-auth";
 import { can } from "@/lib/permissions";
 import { cookies } from "next/headers";
+import { headers } from "next/headers";
 export async function GET() {
   const context = await getBusinessContext();
   if (!context)
@@ -12,7 +13,9 @@ export async function GET() {
     [context.businessId, context.assignedBranchId],
   );
   const selectedBranchId =
-    (await cookies()).get("regsure_branch")?.value || "all";
+    (await headers()).get("x-regsure-branch") ||
+    (await cookies()).get("regsure_branch")?.value ||
+    "all";
   return NextResponse.json({
     branches: result.rows,
     selectedBranchId,

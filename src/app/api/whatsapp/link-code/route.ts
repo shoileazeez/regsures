@@ -64,6 +64,7 @@ export async function PUT(request: Request) {
         String(result.rows[0].user_id),
         String(result.rows[0].business_id),
       ),
+      businessId: String(result.rows[0].business_id),
     });
   } catch {
     await client.query("rollback").catch(() => undefined);

@@ -14,7 +14,8 @@ const regsureAuth: AuthFn<Request> = async (request) => {
   if (!response.ok) return null;
   const data = (await response.json()) as {
     user?: {
-      id: string;
+      id?: string;
+      sub?: string;
       email: string;
       plan: string;
       businessId?: string;
@@ -22,6 +23,8 @@ const regsureAuth: AuthFn<Request> = async (request) => {
     };
   };
   if (!data.user) return null;
+  const principalId = data.user.id || data.user.sub;
+  if (!principalId) return null;
   return {
     attributes: {
       user_AI_token: token,
@@ -31,7 +34,7 @@ const regsureAuth: AuthFn<Request> = async (request) => {
       email: data.user.email,
     },
     authenticator: "regsure-ai-token",
-    principalId: data.user.id,
+    principalId,
     principalType: "user",
   };
 };

@@ -33,6 +33,8 @@ try {
     "017_payment_business.sql",
     "018_membership_branches.sql",
     "019_invite_lifecycle.sql",
+    "020_sale_item_discounts.sql",
+  "021_inventory_alert_threshold.sql",
   ];
   for (const migration of migrations) {
     const applied = await client.query(

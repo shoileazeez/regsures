@@ -5,16 +5,18 @@ export default function Branches() {
   const [address, setAddress] = useState("");
   const [message, setMessage] = useState("");
   const [members, setMembers] = useState<
-    Array<{ id: number; name: string; email: string }>
+    Array<{ id: number; name: string; email: string; role: string }>
   >([]);
   const [assignee, setAssignee] = useState("");
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     fetch("/api/team/members")
       .then((r) => r.json())
-      .then((d) => setMembers(d.members || []));
+      .then((d) => setMembers((d.members || []).filter((member: { role: string }) => member.role !== "owner")));
   }, []);
   async function add(e: React.FormEvent) {
     e.preventDefault();
+    setLoading(true);
     const r = await fetch("/api/branches", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -22,6 +24,13 @@ export default function Branches() {
     });
     const d = await r.json();
     setMessage(r.ok ? "Branch created." : d.error);
+    setLoading(false);
+    if (r.ok) {
+      setName("");
+      setAddress("");
+      setAssignee("");
+      window.location.assign("/dashboard/branches");
+    }
   }
   return (
     <div className="dashboard-content">
@@ -68,7 +77,7 @@ export default function Branches() {
               </option>
             ))}
           </select>
-          <button className="button dark">Create branch +</button>
+          <button className="button dark" disabled={loading}>{loading ? "Creating branch..." : "Create branch +"}</button>
         </form>
         {message && <small>{message}</small>}
       </div>

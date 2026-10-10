@@ -6,18 +6,22 @@ import { createRefreshToken } from "@/lib/refresh-tokens";
 import { inngest } from "@/lib/inngest";
 export async function POST(request: Request) {
   const client = await db.connect();
+  let transactionStarted = false;
   try {
     const { email, password, name, platform = "web" } = await request.json();
-    if (!email || !password || password.length < 8)
+    const normalizedEmail =
+      typeof email === "string" ? email.trim().toLowerCase() : "";
+    if (!normalizedEmail || !password || password.length < 8)
       return NextResponse.json(
         { error: "Use an email and a password with at least 8 characters." },
         { status: 400 },
       );
     await client.query("begin");
+    transactionStarted = true;
     const result = await client.query(
       "insert into users (email,name,password_hash) values ($1,$2,$3) returning id,email,name,plan",
       [
-        email.trim().toLowerCase(),
+        normalizedEmail,
         name?.trim() || "Business owner",
         hashPassword(password),
       ],
@@ -75,11 +79,23 @@ export async function POST(request: Request) {
       });
     }
     return response;
-  } catch {
-    await client.query("rollback").catch(() => {});
+  } catch (error) {
+    const databaseError = error as { code?: string; constraint?: string };
+    if (transactionStarted) await client.query("rollback").catch(() => {});
+    if (
+      databaseError?.code === "23505" &&
+      (databaseError.constraint === "users_email_key" ||
+        databaseError.constraint === "users_email_unique")
+    ) {
+      return NextResponse.json(
+        { error: "That email may already be registered." },
+        { status: 409 },
+      );
+    }
+    console.error("Signup failed", databaseError);
     return NextResponse.json(
-      { error: "That email may already be registered." },
-      { status: 409 },
+      { error: "We could not complete registration right now. Please try again." },
+      { status: 500 },
     );
   } finally {
     client.release();

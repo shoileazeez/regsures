@@ -66,6 +66,7 @@ function formatWhatsAppText(value: string) {
     .replace(/\b(USD|US dollars?)\b/gi, "NGN")
     .replace(/\b(?:business|branch|customer|product|sale|inventory|session)\s*id\s*[:#-]?\s*[A-Za-z0-9_-]+\b/gi, "")
     .replace(/\b(?:business_id|branch_id|customer_id|inventory_item_id|sale_id|session_id)\s*[:=]\s*[A-Za-z0-9_-]+\b/gi, "")
+    .replace(/\b(?:sale|order|transaction)\s*#\s*[A-Za-z0-9_-]+\b/gi, "the sale")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 }

@@ -156,6 +156,23 @@ h2 em {
 .text-link span {
   margin-left: 8px;
 }
+.auth-resend {
+  display: block;
+  width: fit-content;
+  margin: 18px auto 0;
+  padding: 8px 0;
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  font: 14px "DM Sans", sans-serif;
+  cursor: pointer;
+}
+.auth-resend:disabled {
+  color: #858d88;
+  border-bottom-color: #858d88;
+  cursor: wait;
+}
 .hero-note {
   font-size: 11px;
   color: #858d88;

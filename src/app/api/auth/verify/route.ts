@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   const verification = await db.query(
-    "select id from verification_codes where user_id=$1 and code_hash=$2 and used_at is null and expires_at>now() order by created_at desc limit 1",
+    "select id from verification_codes where user_id=$1 and code_hash=$2 and used_at is null and expires_at>now() and created_at>now()-interval '10 minutes' order by created_at desc limit 1",
     [row.id, createHash("sha256").update(String(code)).digest("hex")],
   );
   if (!verification.rows[0])

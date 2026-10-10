@@ -17,6 +17,8 @@ function Verify() {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resent, setResent] = useState(false);
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -32,6 +34,23 @@ function Verify() {
       router.push("/dashboard");
     } else setError(d.error || "Invalid code.");
     setLoading(false);
+  }
+  async function resend() {
+    setResending(true);
+    setError("");
+    const r = await fetch("/api/auth/verification/resend", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    if (r.ok) {
+      setResent(true);
+      showToast("A new verification code has been sent.");
+    } else {
+      const d = await r.json().catch(() => ({}));
+      setError(d.error || "Unable to resend the code.");
+    }
+    setResending(false);
   }
   return (
     <main className="auth-page">
@@ -68,6 +87,9 @@ function Verify() {
           {error && <p className="form-error">{error}</p>}
           <button className="button dark" disabled={loading}>
             {loading ? "Verifying email..." : "Verify email ↗"}
+          </button>
+          <button type="button" className="auth-resend" onClick={resend} disabled={resending || !email}>
+            {resending ? "Sending code..." : resent ? "Send another code" : "Resend verification code"}
           </button>
         </form>
       </div>

@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   try {
     const { email, password, platform = "web" } = await req.json();
     const r = await db.query(
-      "select id,email,name,plan,password_hash from users where email=$1",
+      "select id,email,name,plan,password_hash,email_verified_at from users where email=$1",
       [email?.trim().toLowerCase()],
     );
     const u = r.rows[0];
@@ -16,6 +16,15 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: "Email or password is incorrect." },
         { status: 401 },
+      );
+    if (!u.email_verified_at)
+      return NextResponse.json(
+        {
+          error: "Please verify your email before signing in.",
+          verificationRequired: true,
+          email: u.email,
+        },
+        { status: 403 },
       );
     const savedBusiness = (await cookies()).get("regsure_business")?.value;
     const m = await db.query(

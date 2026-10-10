@@ -30,6 +30,9 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
           ? `/auth/verify?email=${encodeURIComponent(email)}`
           : "/dashboard",
       );
+    } else if (response.status === 403 && data.verificationRequired) {
+      showToast("Please verify your email before signing in.");
+      router.push(`/auth/verify?email=${encodeURIComponent(data.email || email)}`);
     } else setError(data.error || "Please try again.");
     setLoading(false);
   }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import AuthForm from "../AuthForm";
 export default function Login() {
   return (
@@ -17,7 +18,9 @@ export default function Login() {
           <br />
           <em>you again.</em>
         </h1>
-        <AuthForm mode="login" />
+        <Suspense fallback={<div className="auth-form-loading" aria-busy="true">Loading…</div>}>
+          <AuthForm mode="login" />
+        </Suspense>
         <p className="auth-switch">
           New to Regsure? <Link href="/auth/signup">Create your account</Link>
         </p>

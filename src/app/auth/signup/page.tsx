@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import AuthForm from "../AuthForm";
 export default function Signup() {
   return (
@@ -17,7 +18,9 @@ export default function Signup() {
           <br />
           <em>better decisions.</em>
         </h1>
-        <AuthForm mode="signup" />
+        <Suspense fallback={<div className="auth-form-loading" aria-busy="true">Loading…</div>}>
+          <AuthForm mode="signup" />
+        </Suspense>
         <p className="auth-switch">
           Already have an account? <Link href="/auth/login">Sign in</Link>
         </p>

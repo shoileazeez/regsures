@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 import { signJwt } from "@/lib/auth";
 import { createRefreshToken, hashRefreshToken } from "@/lib/refresh-tokens";
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
-  const cookie = (await import("next/headers")).cookies();
+  const cookie = await cookies();
   const raw = body.refreshToken || cookie.get("regsure_refresh")?.value;
   if (!raw)
     return NextResponse.json(

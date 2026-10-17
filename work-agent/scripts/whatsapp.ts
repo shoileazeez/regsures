@@ -1,3 +1,4 @@
+import { createServer } from "node:http";
 import { Chat } from "chat";
 import { createMemoryState } from "@chat-adapter/state-memory";
 import {
@@ -22,6 +23,36 @@ const database =
 const connectionString =
   process.env.ZAILEYS_DATABASE_URL || process.env.DATABASE_URL;
 const notificationCleanups = new Map<string, () => Promise<void>>();
+let latestQr = "";
+
+function escapeHtml(value: string) {
+  return value.replace(/[&<>\"']/g, (character) => {
+    const entities: Record<string, string> = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    };
+    return entities[character];
+  });
+}
+
+const qrPort = Number(process.env.WHATSAPP_QR_PORT || 2101);
+const qrServer = createServer((request, response) => {
+  if (request.url !== "/qr" && request.url !== "/") {
+    response.writeHead(404).end("Not found");
+    return;
+  }
+  response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+  const qr = latestQr
+    ? `<img alt="WhatsApp QR code" width="320" height="320" src="https://quickchart.io/qr?size=320&text=${encodeURIComponent(latestQr)}" />`
+    : "<p>The WhatsApp session is already connected, or a QR code has not been issued yet.</p>";
+  response.end(`<!doctype html><html><head><title>Regsure WhatsApp link</title><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="font-family:system-ui;display:grid;place-items:center;min-height:100vh;background:#f4f0e8;color:#102b2b"><main style="text-align:center;padding:24px"><h1>Link Regsure WhatsApp</h1>${qr}<p>Scan with WhatsApp → Linked devices.</p><p>This page refreshes automatically.</p></main><script>setTimeout(()=>location.reload(),5000)</script></body></html>`);
+});
+qrServer.listen(qrPort, "0.0.0.0", () => {
+  console.log(`Regsure WhatsApp QR page: ${process.env.WHATSAPP_QR_URL || `http://localhost:${qrPort}/qr`}`);
+});
 
 async function subscribeToUserBusinesses(
   thread: any,
@@ -91,6 +122,11 @@ const client = new Client({
   sessionId,
   auth,
   store,
+});
+
+client.on("qr", ({ qrString }: { qrString: string }) => {
+  latestQr = qrString;
+  console.log("WhatsApp QR is also available at the QR page URL above.");
 });
 
 const whatsapp = createZaileysAdapter({

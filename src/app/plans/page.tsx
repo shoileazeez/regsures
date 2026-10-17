@@ -2,6 +2,7 @@ import SiteHeader from "../components/SiteHeader";
 import SiteFooter from "../components/SiteFooter";
 import InteriorHero from "../components/InteriorHero";
 import { getBusinessContext } from "@/lib/request-auth";
+import { formatPlanPrice } from "@/lib/plan-pricing";
 
 const plans = [
   {
@@ -24,7 +25,7 @@ const plans = [
   },
   {
     name: "Basic",
-    price: "₦15,000",
+    price: formatPlanPrice("basic"),
     priceNote: "per month",
     description:
       "More context for a business that is growing its rhythm, with room for two team members.",
@@ -38,7 +39,7 @@ const plans = [
   },
   {
     name: "Pro",
-    price: "₦35,000",
+    price: formatPlanPrice("pro"),
     priceNote: "per month",
     description:
       "The full workspace for teams, WhatsApp assistance, and businesses with more than one place.",
@@ -157,7 +158,7 @@ export default async function Plans() {
               <em>honest.</em>
             </h2>
             <p>
-              Basic is ₦15,000 monthly and Pro is ₦35,000 monthly. Payment is
+              Basic is ₦7,000 monthly and Pro is ₦15,000 monthly. Payment is
               handled securely through Flutterwave, and the owner can renew or
               change plans from the billing page.
             </p>

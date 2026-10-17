@@ -64,12 +64,17 @@ export default function FetchAuthBridge() {
           refresh = null;
         });
         const refreshed = await refresh;
-        if (!refreshed.ok) return response;
-        return original(input, {
+        if (!refreshed.ok) {
+          redirectToLogin();
+          return response;
+        }
+        const retriedResponse = await original(input, {
           ...(requestInit || {}),
           credentials: "include",
           __retried: true,
         } as RequestInit);
+        if (retriedResponse.status === 401) redirectToLogin();
+        return retriedResponse;
       } finally {
         if (button) {
           button.disabled = false;
@@ -82,4 +87,10 @@ export default function FetchAuthBridge() {
     };
   }, []);
   return null;
+}
+
+function redirectToLogin() {
+  if (window.location.pathname.startsWith("/auth/")) return;
+  const returnTo = `${window.location.pathname}${window.location.search}`;
+  window.location.assign(`/auth/login?returnTo=${encodeURIComponent(returnTo)}`);
 }

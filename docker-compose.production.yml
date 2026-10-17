@@ -26,6 +26,8 @@ services:
     command: ["npm", "run", "whatsapp"]
     env_file: ./work-agent/.env.production
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:2101:2101"
     depends_on: [eve]
     networks: [regsure]
 

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { formatPlanPrice } from "@/lib/plan-pricing";
 export default function Billing() {
   const [b, setB] = useState<any>(null),
     [status, setStatus] = useState(""),
@@ -151,6 +152,7 @@ export default function Billing() {
         </article>
         <article>
           <h2>Basic</h2>
+          <strong>{formatPlanPrice("basic")} / month</strong>
           <p>
             Monthly analytics, restock planning, and up to two team members.
             WhatsApp assistant and branches are not included.
@@ -165,6 +167,7 @@ export default function Billing() {
         </article>
         <article className="billing-featured">
           <h2>Pro</h2>
+          <strong>{formatPlanPrice("pro")} / month</strong>
           <p>
             Unlimited team members, WhatsApp assistant, branches, permissions,
             and advanced reporting.

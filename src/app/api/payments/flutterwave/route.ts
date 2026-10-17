@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getBusinessContext } from "@/lib/request-auth";
 import { db } from "@/lib/db";
+import { PLAN_PRICES } from "@/lib/plan-pricing";
 
 export async function POST(request: Request) {
   const context = await getBusinessContext();
@@ -12,7 +13,10 @@ export async function POST(request: Request) {
       { status: 403 },
     );
   const { plan } = await request.json();
-  const prices: Record<string, number> = { basic: 15000, pro: 35000 };
+  const prices: Record<string, number> = {
+    basic: PLAN_PRICES.basic,
+    pro: PLAN_PRICES.pro,
+  };
   if (!prices[plan])
     return NextResponse.json(
       { error: "That plan is not available." },

@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { formatPlanPrice } from "@/lib/plan-pricing";
 import { useRouter } from "next/navigation";
 export default function NewBusiness() {
   const router = useRouter();
@@ -90,13 +91,13 @@ export default function NewBusiness() {
               [
                 "basic",
                 "Basic",
-                "₦15,000 / month",
+                `${formatPlanPrice("basic")} / month`,
                 "Monthly analytics, restock planning, and up to two team members.",
               ],
               [
                 "pro",
                 "Pro",
-                "₦35,000 / month",
+                `${formatPlanPrice("pro")} / month`,
                 "Unlimited team members, branches, advanced reporting, and WhatsApp assistant.",
               ],
             ].map(([value, title, price, features]) => (

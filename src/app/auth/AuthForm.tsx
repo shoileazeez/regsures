@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { showToast } from "../ToastBridge";
 export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -25,10 +26,13 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
           ? "Account created. Check your email to verify it."
           : "Welcome back to Regsure.",
       );
+      const returnTo = searchParams.get("returnTo");
       router.push(
         mode === "signup"
           ? `/auth/verify?email=${encodeURIComponent(email)}`
-          : "/dashboard",
+          : returnTo?.startsWith("/")
+            ? returnTo
+            : "/dashboard",
       );
     } else if (response.status === 403 && data.verificationRequired) {
       showToast("Please verify your email before signing in.");
